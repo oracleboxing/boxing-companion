@@ -64,7 +64,7 @@ private struct WorkoutSessionRow: Decodable {
 
         return WorkoutSession(
             title: displayTitle,
-            blocks: blocks.isEmpty ? [WorkoutSessionBlock(title: summary ?? displayTitle, type: .unknown, durationSeconds: 0)] : blocks
+            blocks: blocks.isEmpty ? [WorkoutSessionBlock(title: summary ?? displayTitle, type: .unknown, durationSeconds: 0, animationID: "guard_bounce")] : blocks
         )
     }
 }
@@ -73,18 +73,21 @@ private struct WorkoutSessionBlockRow: Decodable {
     let title: String?
     let type: String?
     let durationSeconds: Int?
+    let animationID: String?
 
     enum CodingKeys: String, CodingKey {
         case title
         case type
         case durationSeconds = "duration_seconds"
+        case animationID = "animation_id"
     }
 
     var block: WorkoutSessionBlock {
         WorkoutSessionBlock(
             title: title ?? "",
             type: WorkoutSessionBlockType(rawValue: type ?? "") ?? .unknown,
-            durationSeconds: durationSeconds ?? 0
+            durationSeconds: durationSeconds ?? 0,
+            animationID: animationID
         )
     }
 }

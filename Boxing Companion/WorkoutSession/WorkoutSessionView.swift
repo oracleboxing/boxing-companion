@@ -42,9 +42,12 @@ struct WorkoutSessionView: View {
     private var athleteAndTextZone: some View {
         VStack(spacing: 0) {
             ZStack {
-                StandingBoxerPlaceholder()
-                    .stroke(primaryTextColor, lineWidth: 9)
-                    .frame(width: 168, height: 248)
+                ActionManView(
+                    animationID: engine.currentAnimationID,
+                    isPlaying: engine.isRunning,
+                    lineColor: primaryTextColor
+                )
+                .frame(width: 190, height: 270)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
@@ -187,39 +190,6 @@ private enum LoadState {
     case loading
     case loaded
     case offline
-}
-
-private struct StandingBoxerPlaceholder: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-
-        let centerX = rect.midX
-        let headRadius = rect.width * 0.15
-        let headCenter = CGPoint(x: centerX, y: rect.minY + rect.height * 0.16)
-        path.addEllipse(in: CGRect(
-            x: headCenter.x - headRadius,
-            y: headCenter.y - headRadius,
-            width: headRadius * 2,
-            height: headRadius * 2
-        ))
-
-        path.move(to: CGPoint(x: centerX, y: rect.minY + rect.height * 0.30))
-        path.addLine(to: CGPoint(x: centerX, y: rect.minY + rect.height * 0.62))
-
-        path.move(to: CGPoint(x: centerX, y: rect.minY + rect.height * 0.38))
-        path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.28, y: rect.minY + rect.height * 0.50))
-
-        path.move(to: CGPoint(x: centerX, y: rect.minY + rect.height * 0.38))
-        path.addLine(to: CGPoint(x: rect.maxX - rect.width * 0.28, y: rect.minY + rect.height * 0.50))
-
-        path.move(to: CGPoint(x: centerX, y: rect.minY + rect.height * 0.62))
-        path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.34, y: rect.maxY - rect.height * 0.10))
-
-        path.move(to: CGPoint(x: centerX, y: rect.minY + rect.height * 0.62))
-        path.addLine(to: CGPoint(x: rect.maxX - rect.width * 0.34, y: rect.maxY - rect.height * 0.10))
-
-        return path
-    }
 }
 
 private extension Color {

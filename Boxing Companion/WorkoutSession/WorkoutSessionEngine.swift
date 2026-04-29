@@ -5,13 +5,13 @@ struct WorkoutSession {
     var blocks: [WorkoutSessionBlock]
 
     var firstBlock: WorkoutSessionBlock {
-        blocks.first ?? WorkoutSessionBlock(title: title, type: .unknown, durationSeconds: 0)
+        blocks.first ?? WorkoutSessionBlock(title: title, type: .unknown, durationSeconds: 0, animationID: nil)
     }
 
     static let placeholder = WorkoutSession(
         title: "Workout Alpha",
         blocks: [
-            WorkoutSessionBlock(title: "Workout Alpha", type: .unknown, durationSeconds: 0)
+            WorkoutSessionBlock(title: "Workout Alpha", type: .unknown, durationSeconds: 0, animationID: "guard_bounce")
         ]
     )
 }
@@ -21,6 +21,7 @@ struct WorkoutSessionBlock: Identifiable, Equatable {
     var title: String
     var type: WorkoutSessionBlockType
     var durationSeconds: Int
+    var animationID: String?
 }
 
 enum WorkoutSessionBlockType: String {
@@ -62,6 +63,10 @@ struct WorkoutSessionEngine {
 
     var isResting: Bool {
         currentBlock.type == .recovery
+    }
+
+    var currentAnimationID: String {
+        ActionManAnimationMapper.animationID(for: currentBlock)
     }
 
     private var currentBlock: WorkoutSessionBlock {
