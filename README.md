@@ -52,4 +52,5 @@ Read these before building:
 - [`DATA_MODEL.md`](DATA_MODEL.md)
 - [`SUPABASE.md`](SUPABASE.md)
 - [`DESIGN.md`](DESIGN.md)
+- [`ACTION_MAN.md`](ACTION_MAN.md)
 - [`CODEX.md`](CODEX.md)

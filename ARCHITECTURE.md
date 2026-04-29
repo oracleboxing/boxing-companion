@@ -149,6 +149,49 @@ Near-term guidance:
 
 - Keep this module working as the vertical slice.
 - Extract from it gradually: first domain workout models, then the read-only Supabase repository, then the general session engine.
+- The next product-facing addition is the Action Man animation module. The workout session should only pass the active block's animation ID/playback state into Action Man, not own pose drawing logic.
+
+### Action Man
+
+Owns the lightweight animated stick-figure boxer.
+
+Target files:
+
+```text
+Boxing Companion/ActionMan/
+  ActionManView.swift
+  ActionManPose.swift
+  ActionManAnimation.swift
+  ActionManAnimationLibrary.swift
+  ActionManRenderer.swift
+```
+
+Responsibilities:
+
+- define stick-figure joint poses
+- define timed keyframe animations
+- interpolate poses
+- render the current pose in SwiftUI
+- provide safe fallbacks for unknown animation IDs
+
+Non-responsibilities:
+
+- fetching workouts
+- timer/session ownership
+- Supabase DTO mapping
+- progress persistence
+- auth
+
+Public interface should stay narrow:
+
+```swift
+struct ActionManView: View {
+    let animationID: String?
+    let isPlaying: Bool
+}
+```
+
+Full implementation guidance lives in `ACTION_MAN.md`.
 
 ### Session Engine
 

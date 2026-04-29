@@ -27,23 +27,22 @@ This repo was created from the Xcode SwiftData template, so default sample files
 
 Replace those with app-specific models and views as soon as useful.
 
-## First build slice
+## Current build slice
 
-Build local-only first:
+The app now has a first workout session vertical slice:
 
-1. Home screen with app name, today’s training card, and Start Workout CTA.
-2. Workout runner screen with timer blocks.
-3. Static prototype workout using dynamic warm-up blocks.
-4. Completion screen/state.
-5. Swift Testing tests for timer state transitions.
-6. One XCUITest smoke flow.
+1. `ContentView` launches `WorkoutSessionView`.
+2. `WorkoutSessionSupabaseClient` fetches `Workout Alpha` from Supabase `workout_templates`.
+3. `WorkoutSessionEngine` owns active block, countdown, play/pause, previous/next, and completion.
+4. If Supabase fails, the app falls back to a placeholder session.
 
-Only after that should Supabase reads be added.
+Next useful product slice: build the lightweight Action Man animation system described in [`ACTION_MAN.md`](ACTION_MAN.md), then connect the active workout block to an animation ID.
 
 ## Suggested feature structure
 
 ```text
 Boxing Companion/
+  ActionMan/
   Features/
     Home/
     WorkoutRunner/
@@ -65,6 +64,9 @@ Minimum useful tests:
 - pause/resume works
 - completion triggers after final block
 - app launches and Start Workout opens runner
+- Action Man pose interpolation works
+- unknown animation ID falls back safely
+- active block maps to the expected animation ID
 
 ## Ask before
 
