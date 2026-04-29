@@ -40,7 +40,7 @@ This is fine as a placeholder, but it cannot perform movements because there is 
 
 ## Recommended MVP approach
 
-Build a small pose-based stick-figure animation system in SwiftUI.
+Build a small pose-based animated character system in SwiftUI.
 
 Core idea:
 
@@ -64,6 +64,8 @@ jab_cross
 ```
 
 This keeps the interface narrow. The workout runner does not need to know how to draw a jab. It only asks the animation module to play the animation for the current block.
+
+Longer term, the best animation source is pose-captured movement from real Oracle Boxing demos. See `POSE_CAPTURE.md` for the 33-landmark video-to-keyframes pipeline.
 
 ## Module boundary
 

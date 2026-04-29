@@ -73,3 +73,11 @@ Build a local-only prototype first:
 - no Supabase writes
 
 Then wire Supabase reads once the runner feels right.
+
+## Action Man animation roadmap
+
+Current MVP uses hand-authored SwiftUI keyframes.
+
+Best future path: capture Ollie/Jordan demo videos with a 33-point pose model, normalize the landmark data, and convert it into Action Man keyframes. This gives the app Oracle-authored movement instead of guessed animation.
+
+See [`POSE_CAPTURE.md`](POSE_CAPTURE.md).

@@ -195,6 +195,8 @@ struct ActionManView: View {
 
 Primary implementation guidance lives in `ACTION_MAN.md`.
 
+Future animation authoring direction: use 33-point pose capture from real Oracle Boxing demo videos to generate higher-quality Action Man keyframes. Keep this as an offline/content pipeline, not workout-session UI logic. See `POSE_CAPTURE.md`.
+
 ### Session Engine
 
 Owns runtime session state.
