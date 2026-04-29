@@ -16,6 +16,24 @@ Goals:
 - show Action Man animation for each block
 - keep a safe offline/fallback workout path
 
+## Phase 1.5: Workout Library
+
+Status: in progress.
+
+Goals:
+
+- show active workouts from Supabase `workout_templates`
+- support Boxing, Running, and S&C sections without building three separate runners
+- route selected workouts into the same deep `WorkoutSession` module
+- keep Supabase DTO mapping inside repository/client files
+- keep the UI consuming small domain summaries, not raw database rows
+
+Current starter library includes:
+
+- `Workout Alpha` - boxing
+- `Money May W1 S2 HIIT Run` - running
+- `S&C Alpha: Shoulder Core Legs` - strength and conditioning
+
 ## Phase 2: Action Man MVP
 
 Status: in progress.

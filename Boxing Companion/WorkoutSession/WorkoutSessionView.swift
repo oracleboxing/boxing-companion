@@ -5,8 +5,17 @@ struct WorkoutSessionView: View {
     @State private var engine = WorkoutSessionEngine()
     @State private var loadState = LoadState.loading
 
-    private let client = WorkoutSessionSupabaseClient()
+    private let workout: WorkoutTemplateSummary?
+    private let client: WorkoutSessionSupabaseClient
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+
+    init(workout: WorkoutTemplateSummary? = nil) {
+        self.workout = workout
+        self.client = WorkoutSessionSupabaseClient(
+            workoutID: workout?.id,
+            workoutName: workout?.title ?? "Workout Alpha"
+        )
+    }
 
     var body: some View {
         GeometryReader { proxy in
@@ -23,6 +32,8 @@ struct WorkoutSessionView: View {
         }
         .padding(24)
         .background(screenBackground.ignoresSafeArea())
+        .navigationTitle(workout?.title ?? engine.workout.title)
+        .navigationBarTitleDisplayMode(.inline)
         .task {
             await loadWorkout()
         }
@@ -154,7 +165,7 @@ struct WorkoutSessionView: View {
 
     private func loadWorkout() async {
         do {
-            let workout = try await client.fetchWorkoutAlpha()
+            let workout = try await client.fetchWorkout()
             engine.setWorkout(workout)
             loadState = .loaded
         } catch {
@@ -205,5 +216,5 @@ private extension Color {
 }
 
 #Preview {
-    WorkoutSessionView()
+    WorkoutSessionView(workout: WorkoutTemplateSummary.fallbackWorkouts[0])
 }

@@ -15,9 +15,11 @@ Current entry path:
 ```text
 Boxing_CompanionApp
   -> ContentView
-    -> WorkoutSessionView
-      -> WorkoutSessionEngine
-      -> WorkoutSessionSupabaseClient
+    -> WorkoutLibraryView
+      -> WorkoutLibrarySupabaseClient
+      -> WorkoutSessionView(selected workout)
+        -> WorkoutSessionEngine
+        -> WorkoutSessionSupabaseClient
 ```
 
 Current source layout:
@@ -26,6 +28,12 @@ Current source layout:
 Boxing Companion/
   Boxing_CompanionApp.swift
   ContentView.swift
+  App/
+    AppConfig.swift
+  Workouts/
+    WorkoutLibraryView.swift
+    WorkoutLibrarySupabaseClient.swift
+    WorkoutTemplateSummary.swift
   RoundTimer/
     RoundTimerEngine.swift
     RoundTimerView.swift
@@ -37,11 +45,13 @@ Boxing Companion/
 
 Current behavior:
 
-- `ContentView` launches `WorkoutSessionView`.
-- `WorkoutSessionView` fetches `Workout Alpha` on load.
-- `WorkoutSessionSupabaseClient` reads from Supabase `workout_templates`.
+- `ContentView` launches `WorkoutLibraryView`.
+- `WorkoutLibraryView` fetches active workouts from Supabase `workout_templates` and shows Boxing, Running, and S&C filters.
+- Selecting a workout opens `WorkoutSessionView(workout:)`.
+- `WorkoutSessionView` fetches the selected workout blocks by Supabase ID, then falls back to title lookup for bundled fallback cards.
+- `WorkoutSessionSupabaseClient` reads `blocks_json` from Supabase `workout_templates`.
 - `WorkoutSessionEngine` owns current workout, active block index, start/stop state, manual previous/next block movement, and countdown ticks.
-- If Supabase config/fetching fails, the app falls back to a placeholder session.
+- If Supabase config/fetching fails, the library falls back to bundled summary cards and the session falls back to a safe placeholder.
 - The old `RoundTimer` module is no longer the main product path. It can stay temporarily as prototype/reference code.
 
 This is a useful MVP slice, but it currently combines domain models, engine logic, Supabase DTO mapping, and feature UI under `WorkoutSession`. The next architecture step is to keep the slice working while extracting deeper modules around it.
@@ -114,6 +124,36 @@ Near-term guidance:
 - Keep `ContentView` as a thin handoff into `WorkoutSessionView`.
 - Move files into an `App/` folder later only when the project structure starts to benefit from it.
 
+### Workout Library Feature
+
+Owns browsing and selecting training sessions.
+
+Current files:
+
+```text
+Boxing Companion/Workouts/
+  WorkoutLibraryView.swift
+  WorkoutLibrarySupabaseClient.swift
+  WorkoutTemplateSummary.swift
+```
+
+Responsibilities:
+
+- show active workouts from Supabase
+- group/filter by discipline: Boxing, Running, S&C, Hybrid
+- keep cards lightweight and product-facing
+- pass selected workout identity into the session runner
+- provide fallback workout summaries when Supabase is unavailable
+
+Non-responsibilities:
+
+- running session timers
+- parsing workout blocks for playback
+- saving completions
+- owning auth or progress sync
+
+Deep-module rule: the library consumes workout summaries, not raw Supabase rows. Supabase DTO mapping stays inside `WorkoutLibrarySupabaseClient`.
+
 ### Workout Session Feature
 
 Owns the current user-facing guided training surface.
@@ -134,7 +174,8 @@ Responsibilities:
 - large countdown timer
 - start/stop control
 - previous/next block controls
-- loading a workout for the current MVP
+- loading the selected workout for the current MVP
+- support boxing, running, and S&C block types through the same narrow session model
 - fallback placeholder when remote loading fails
 
 Non-responsibilities, target state:

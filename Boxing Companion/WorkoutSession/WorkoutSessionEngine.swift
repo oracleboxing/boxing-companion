@@ -28,6 +28,10 @@ enum WorkoutSessionBlockType: String {
     case prep
     case warmup
     case skill
+    case running
+    case runningIntervals = "running_intervals"
+    case strength
+    case conditioning
     case recovery
     case cooldown
     case unknown

@@ -6,9 +6,10 @@ struct WorkoutSessionSupabaseClient {
         case invalidResponse
     }
 
+    var workoutID: String?
     var workoutName = "Workout Alpha"
 
-    func fetchWorkoutAlpha() async throws -> WorkoutSession {
+    func fetchWorkout() async throws -> WorkoutSession {
         guard
             let baseURL = AppConfig.supabaseURL,
             let anonKey = AppConfig.supabaseAnonKey
@@ -17,11 +18,7 @@ struct WorkoutSessionSupabaseClient {
         }
 
         var components = URLComponents(string: "\(baseURL)/rest/v1/workout_templates")
-        components?.queryItems = [
-            URLQueryItem(name: "select", value: "title,summary,blocks_json"),
-            URLQueryItem(name: "title", value: "ilike.*\(workoutName)*"),
-            URLQueryItem(name: "limit", value: "1")
-        ]
+        components?.queryItems = queryItems()
 
         guard let url = components?.url else {
             throw ClientError.missingConfiguration
@@ -44,6 +41,25 @@ struct WorkoutSessionSupabaseClient {
         }
 
         return row.session(named: workoutName)
+    }
+
+    func fetchWorkoutAlpha() async throws -> WorkoutSession {
+        try await fetchWorkout()
+    }
+
+    private func queryItems() -> [URLQueryItem] {
+        var items = [
+            URLQueryItem(name: "select", value: "id,title,summary,blocks_json"),
+            URLQueryItem(name: "limit", value: "1")
+        ]
+
+        if let workoutID, !workoutID.hasPrefix("fallback-") {
+            items.append(URLQueryItem(name: "id", value: "eq.\(workoutID)"))
+        } else {
+            items.append(URLQueryItem(name: "title", value: "ilike.*\(workoutName)*"))
+        }
+
+        return items
     }
 }
 
@@ -89,63 +105,5 @@ private struct WorkoutSessionBlockRow: Decodable {
             durationSeconds: durationSeconds ?? 0,
             animationID: animationID
         )
-    }
-}
-
-private enum AppConfig {
-    static var supabaseURL: String? {
-        value(named: "SUPABASE_URL")
-    }
-
-    static var supabaseAnonKey: String? {
-        value(named: "SUPABASE_ANON_KEY")
-    }
-
-    private static func value(named key: String) -> String? {
-        if let environmentValue = ProcessInfo.processInfo.environment[key], !environmentValue.isEmpty {
-            return environmentValue
-        }
-
-        if let bundleValue = Bundle.main.object(forInfoDictionaryKey: key) as? String, !bundleValue.isEmpty {
-            return bundleValue
-        }
-
-        if let localValue = localEnvironmentValue(named: key), !localValue.isEmpty {
-            return localValue
-        }
-
-        return nil
-    }
-
-    private static func localEnvironmentValue(named key: String) -> String? {
-        guard
-            let url = Bundle.main.url(forResource: "Supabase", withExtension: "local.env"),
-            let contents = try? String(contentsOf: url, encoding: .utf8)
-        else {
-            return nil
-        }
-
-        return contents
-            .split(separator: "\n")
-            .compactMap { line -> (String, String)? in
-                let trimmedLine = line.trimmingCharacters(in: .whitespaces)
-
-                guard
-                    !trimmedLine.isEmpty,
-                    !trimmedLine.hasPrefix("#"),
-                    let separatorIndex = trimmedLine.firstIndex(of: "=")
-                else {
-                    return nil
-                }
-
-                let lineKey = String(trimmedLine[..<separatorIndex])
-                let rawValue = trimmedLine[trimmedLine.index(after: separatorIndex)...]
-                    .trimmingCharacters(in: .whitespaces)
-                    .trimmingCharacters(in: CharacterSet(charactersIn: "\""))
-
-                return (lineKey, rawValue)
-            }
-            .first { $0.0 == key }?
-            .1
     }
 }
