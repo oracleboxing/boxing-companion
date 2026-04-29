@@ -19,6 +19,7 @@ Package.resolved
 # Secrets / local config
 .env
 .env.*
+!.env.example
 *.xcconfig.local
 
 # Archives
