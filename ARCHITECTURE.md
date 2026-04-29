@@ -6,28 +6,70 @@ Build deep modules with narrow interfaces. Screens should call modules, not know
 
 The app should feel simple at the surface because complexity is owned by a few clear modules underneath it.
 
+## Current Shape
+
+The app has moved from a bare round timer into a first workout-session vertical slice.
+
+Current entry path:
+
+```text
+Boxing_CompanionApp
+  -> ContentView
+    -> WorkoutSessionView
+      -> WorkoutSessionEngine
+      -> WorkoutSessionSupabaseClient
+```
+
+Current source layout:
+
+```text
+Boxing Companion/
+  Boxing_CompanionApp.swift
+  ContentView.swift
+  RoundTimer/
+    RoundTimerEngine.swift
+    RoundTimerView.swift
+  WorkoutSession/
+    WorkoutSessionEngine.swift
+    WorkoutSessionSupabaseClient.swift
+    WorkoutSessionView.swift
+```
+
+Current behavior:
+
+- `ContentView` launches `WorkoutSessionView`.
+- `WorkoutSessionView` fetches `Workout Alpha` on load.
+- `WorkoutSessionSupabaseClient` reads from Supabase `workout_templates`.
+- `WorkoutSessionEngine` owns current workout, active block index, start/stop state, manual previous/next block movement, and countdown ticks.
+- If Supabase config/fetching fails, the app falls back to a placeholder session.
+- The old `RoundTimer` module is no longer the main product path. It can stay temporarily as prototype/reference code.
+
+This is a useful MVP slice, but it currently combines domain models, engine logic, Supabase DTO mapping, and feature UI under `WorkoutSession`. The next architecture step is to keep the slice working while extracting deeper modules around it.
+
 ## Stack
 
 - **App:** native iOS using SwiftUI
-- **Local storage:** SwiftData
+- **Local storage:** SwiftData, later
 - **Cloud storage:** Supabase
-- **Auth/session secrets:** Keychain
+- **Auth/session secrets:** Keychain, later
 - **Testing:** Swift Testing for logic, XCUITest for flows
 
 Do not use CloudKit. Supabase is the cloud source of truth for canonical content and user progress.
 
 ## Dependency Direction
 
-High-level dependency flow:
+Target dependency flow:
 
 ```text
 App Shell
-  -> Screens / Features
+  -> Features / Screens
     -> Session Engine
     -> Workouts
-    -> Profiles / Auth
     -> Persistence
-    -> Supabase Read Path
+    -> Profiles / Auth
+
+Workouts
+  -> Supabase Read Path
 ```
 
 Important boundaries:
@@ -35,7 +77,7 @@ Important boundaries:
 - Screens can depend on modules.
 - Modules should not depend on screens.
 - Session Engine can depend on workout domain models, but not Supabase, SwiftData, auth, or navigation.
-- Workouts can map from local/static/remote sources into domain models, but UI should not consume Supabase DTOs directly.
+- Workouts can map from static/local/remote sources into domain models, but UI should not consume Supabase DTOs directly.
 - Profiles/Auth should not leak into timer, workout, or runner logic.
 - App Shell decides what screen appears; it should not own training rules.
 
@@ -45,12 +87,20 @@ Important boundaries:
 
 Owns app startup, navigation, dependency assembly, and deciding which high-level screen appears.
 
+Current files:
+
+```text
+Boxing Companion/
+  Boxing_CompanionApp.swift
+  ContentView.swift
+```
+
 Responsibilities:
 
 - root SwiftUI scene
-- navigation flow
+- initial feature selection
 - lightweight dependency creation
-- feature entry points
+- future navigation flow
 
 Non-responsibilities:
 
@@ -59,29 +109,79 @@ Non-responsibilities:
 - Supabase DTO mapping
 - user session storage
 
-Suggested path:
+Near-term guidance:
+
+- Keep `ContentView` as a thin handoff into `WorkoutSessionView`.
+- Move files into an `App/` folder later only when the project structure starts to benefit from it.
+
+### Workout Session Feature
+
+Owns the current user-facing guided training surface.
+
+Current files:
 
 ```text
-Boxing Companion/App/
+Boxing Companion/WorkoutSession/
+  WorkoutSessionView.swift
+  WorkoutSessionEngine.swift
+  WorkoutSessionSupabaseClient.swift
 ```
+
+Responsibilities:
+
+- active workout-session screen
+- large current block text
+- large countdown timer
+- start/stop control
+- previous/next block controls
+- loading a workout for the current MVP
+- fallback placeholder when remote loading fails
+
+Non-responsibilities, target state:
+
+- canonical workout model ownership
+- Supabase configuration ownership
+- Supabase DTO mapping ownership
+- persistence implementation
+- authentication
+
+Near-term guidance:
+
+- Keep this module working as the vertical slice.
+- Extract from it gradually: first domain workout models, then the read-only Supabase repository, then the general session engine.
 
 ### Session Engine
 
 Owns runtime session state.
 
-The app should be able to say "run this session" and the engine handles time, pause/resume, completion, and block progression.
+Current implementation:
 
-Responsibilities:
+```text
+Boxing Companion/WorkoutSession/WorkoutSessionEngine.swift
+```
 
-- idle/running/paused/complete state
+Current responsibilities:
+
+- selected workout session
+- running/stopped state
+- active block index
+- seconds remaining
+- formatted time
+- previous/next block movement
+- block auto-advance
+
+Target responsibilities:
+
+- idle/running/paused/complete status
 - current block index
 - current block remaining time
 - elapsed/completed duration
-- start, pause, resume, stop/reset
+- start, pause, resume, reset
 - deterministic tick handling
 - auto-advance through blocks
+- completion reporting
 
-Non-responsibilities:
+Target non-responsibilities:
 
 - fetching workouts
 - saving completions
@@ -89,49 +189,86 @@ Non-responsibilities:
 - screen routing
 - visual formatting
 
-Suggested path:
+Target path:
 
 ```text
 Boxing Companion/SessionEngine/
   SessionEngine.swift
-  SessionState.swift
+  SessionStatus.swift
   SessionSnapshot.swift
 ```
 
-The key design choice: make the engine deterministic. The engine should expose commands like `start()`, `pause()`, `reset()`, and `tick()`. The SwiftUI view or a thin runner model can own the actual `Timer`.
+Key design choice: make the engine deterministic. The engine should expose commands like `start()`, `pause()`, `reset()`, `previousBlock()`, `nextBlock()`, and `tick()`. The SwiftUI view or a thin runner model can own the actual `Timer`.
+
+The UI should render a snapshot rather than reaching into many engine details:
+
+```swift
+struct SessionSnapshot: Equatable {
+    let status: SessionStatus
+    let workoutTitle: String
+    let currentBlockTitle: String?
+    let currentBlockType: WorkoutBlockType?
+    let currentBlockIndex: Int
+    let totalBlocks: Int
+    let secondsRemaining: Int
+    let elapsedSeconds: Int
+}
+```
 
 ### Workouts
 
 Owns workout definitions and their app-domain shape.
 
-This starts as local Swift structs or bundled JSON, then later gets backed by Supabase read models.
+Current implementation:
 
-Responsibilities:
+- `WorkoutSession`
+- `WorkoutSessionBlock`
+- `WorkoutSessionBlockType`
+
+These currently live in `WorkoutSessionEngine.swift`.
+
+Target responsibilities:
 
 - `Workout`
 - `WorkoutBlock`
-- block types such as warmup, work, rest, cooldown
+- block types
 - exercise/move/combination references
 - prototype workout definitions
 - mapping from Supabase DTOs to domain models
 
-Non-responsibilities:
+Target non-responsibilities:
 
 - active timer state
 - navigation
 - auth
 - SwiftUI layout
 
-Suggested path:
+Target path:
 
 ```text
 Boxing Companion/Workouts/
-  Domain/
-  Local/
-  Remote/
+  Workout.swift
+  WorkoutBlock.swift
+  WorkoutBlockType.swift
+  LocalWorkoutRepository.swift
 ```
 
-Keep three model layers when Supabase arrives:
+Current block types are:
+
+```swift
+enum WorkoutSessionBlockType: String {
+    case prep
+    case warmup
+    case skill
+    case recovery
+    case cooldown
+    case unknown
+}
+```
+
+Keep those names for now because they match the current Supabase `blocks_json` shape. Rename only when the content model is clearer.
+
+Eventually keep three model layers:
 
 - Remote DTOs match Supabase shape.
 - Domain models match app usage.
@@ -139,89 +276,47 @@ Keep three model layers when Supabase arrives:
 
 Do not let Supabase table shape leak into the runner UI.
 
-### Workout Runner
-
-Owns the user-facing guided training screen.
-
-This is a feature module, not the domain engine. It displays engine state and sends commands.
-
-Responsibilities:
-
-- current block timer display
-- current block name
-- up-next preview later
-- start/stop/pause controls
-- complete state
-- simple coach cues
-
-Non-responsibilities:
-
-- canonical workout definition ownership
-- Supabase access
-- auth/session storage
-- persistence implementation
-
-Suggested path:
-
-```text
-Boxing Companion/Features/WorkoutRunner/
-```
-
-### Persistence
-
-Owns local records that are created by the app.
-
-For the MVP, persistence should be intentionally small.
-
-Responsibilities:
-
-- SwiftData completion records
-- completed workout timestamp
-- duration completed
-- local completion drafts if offline support becomes useful
-- cached workouts later, only after the runner feels right
-
-Non-responsibilities:
-
-- canonical workout authoring
-- Supabase schema ownership
-- active session timing
-
-Suggested path:
-
-```text
-Boxing Companion/Persistence/
-```
-
-Do not put canonical workout definitions in SwiftData at first unless caching is needed.
-
 ### Supabase Read Path
 
 Owns read-only access to published content from the Oracle Boxing Supabase project.
 
-Responsibilities:
+Current implementation:
+
+```text
+Boxing Companion/WorkoutSession/WorkoutSessionSupabaseClient.swift
+```
+
+Current behavior:
+
+- reads config from environment variables, Info.plist values, or bundled `Supabase.local.env`
+- calls Supabase REST endpoint `/rest/v1/workout_templates`
+- selects `title,summary,blocks_json`
+- filters by `Workout Alpha`
+- decodes rows into `WorkoutSession`
+
+Target responsibilities:
 
 - Supabase configuration
 - read-only client setup
 - fetch published workouts
-- fetch related movements, exercises, and combinations
+- fetch related movements, exercises, and combinations later
 - map DTOs to domain models
 - cache fetched workouts later
 
-Non-responsibilities:
+Target non-responsibilities:
 
 - direct UI state
 - timer state
 - auth-only progress writes
 
-Suggested path:
+Target path:
 
 ```text
 Boxing Companion/Supabase/
   SupabaseConfig.swift
-  SupabaseClientFactory.swift
-  WorkoutDTOs.swift
-  WorkoutRemoteRepository.swift
+  SupabaseReadClient.swift
+  WorkoutTemplateDTO.swift
+  SupabaseWorkoutRepository.swift
 ```
 
 Rules:
@@ -231,12 +326,44 @@ Rules:
 - Do not bypass Row Level Security from the client.
 - Read curated/published content only.
 - Do not expose internal intake tables such as `raw_drill_candidates`.
+- Keep configuration tidy. The anon key is public-ish by design, but it should not be scattered through random source files.
+
+### Persistence
+
+Owns local records that are created by the app.
+
+Not implemented yet.
+
+For the MVP, persistence should be intentionally small.
+
+Responsibilities:
+
+- SwiftData completion records
+- completed workout timestamp
+- duration completed
+- blocks completed
+- local completion drafts if offline support becomes useful
+- cached workouts later, only after the runner feels right
+
+Non-responsibilities:
+
+- canonical workout authoring
+- Supabase schema ownership
+- active session timing
+
+Target path:
+
+```text
+Boxing Companion/Persistence/
+```
+
+Do not put canonical workout definitions in SwiftData at first unless caching is needed.
 
 ### Profiles / Auth
 
 Owns identity and authenticated session state.
 
-Add this only after the unauthenticated runner path is worth identifying.
+Not implemented yet. Add this only after the unauthenticated runner path is worth identifying.
 
 Responsibilities:
 
@@ -253,15 +380,17 @@ Non-responsibilities:
 - runner display
 - workout content mapping
 
-Suggested path:
+Target path:
 
 ```text
 Boxing Companion/ProfileAuth/
 ```
 
-## Suggested Source Layout
+Auth should wrap the app, not invade it. The unauthenticated local/remote runner should still be understandable and testable.
 
-Near-term layout:
+## Target Source Layout
+
+Do not rush the folder shuffle. Let extraction follow working behavior.
 
 ```text
 Boxing Companion/
@@ -269,213 +398,177 @@ Boxing Companion/
     Boxing_CompanionApp.swift
     ContentView.swift
   Features/
+    WorkoutSession/
+      WorkoutSessionView.swift
     RoundTimer/
-    WorkoutRunner/
+      RoundTimerView.swift
   SessionEngine/
+    SessionEngine.swift
+    SessionStatus.swift
+    SessionSnapshot.swift
   Workouts/
-    Domain/
-    Local/
-  Persistence/
+    Workout.swift
+    WorkoutBlock.swift
+    WorkoutBlockType.swift
+    LocalWorkoutRepository.swift
   Supabase/
+    SupabaseConfig.swift
+    SupabaseReadClient.swift
+    WorkoutTemplateDTO.swift
+    SupabaseWorkoutRepository.swift
+  Persistence/
   ProfileAuth/
   DesignSystem/
   Utilities/
 ```
 
-The current `RoundTimer` can stay while proving the UI. Once block-based workouts exist, promote the timer logic into `SessionEngine` and let `RoundTimer` either disappear or become a small debug/prototype feature.
+Recommended extraction order:
 
-## Core Domain Sketch
-
-The exact Swift names can evolve, but the boundaries should look like this:
-
-```swift
-struct Workout: Identifiable, Equatable {
-    let id: String
-    let title: String
-    let blocks: [WorkoutBlock]
-}
-
-struct WorkoutBlock: Identifiable, Equatable {
-    let id: String
-    let type: WorkoutBlockType
-    let title: String
-    let durationSeconds: Int
-    let cues: [String]
-}
-
-enum WorkoutBlockType: String, Codable, Equatable {
-    case warmup
-    case work
-    case rest
-    case cooldown
-}
-
-enum SessionStatus: Equatable {
-    case idle
-    case running
-    case paused
-    case complete
-}
-```
-
-The runner should mostly render a snapshot:
-
-```swift
-struct SessionSnapshot: Equatable {
-    let status: SessionStatus
-    let workoutTitle: String
-    let currentBlockTitle: String?
-    let currentBlockType: WorkoutBlockType?
-    let currentBlockIndex: Int
-    let totalBlocks: Int
-    let secondsRemaining: Int
-    let elapsedSeconds: Int
-}
-```
-
-That snapshot is the narrow interface between the engine and the UI.
+1. Move `WorkoutSession`, `WorkoutSessionBlock`, and `WorkoutSessionBlockType` into `Workouts`.
+2. Rename them to `Workout`, `WorkoutBlock`, and `WorkoutBlockType` once call sites are stable.
+3. Move Supabase config and DTOs out of `WorkoutSessionSupabaseClient`.
+4. Rename `WorkoutSessionEngine` to `SessionEngine` once it no longer owns app-specific workout loading.
+5. Keep `WorkoutSessionView` as the first feature screen.
+6. Delete or archive `RoundTimer` once the workout session runner fully replaces it.
 
 ## Phase Plan
 
 ### Phase 1: Bare Timer
 
-Goal: prove the simplest training surface.
+Status: mostly superseded.
 
-Issues:
+Completed/started:
 
-- Build single round timer screen
-- Add start/stop timer behavior
-- Keep timer state local and disposable
-- Remove default Xcode sample app code
-- Verify app launches cleanly
-
-Current status:
-
-- A `RoundTimerView` and `RoundTimerEngine` already exist.
-- The default sample `Item` model has been removed from the working tree.
-
-### Phase 2: Session Engine
-
-Goal: move timer logic out of the view before it grows claws.
-
-Issues:
-
-- Create `SessionEngine`
-- Model session states: idle, running, paused, complete
-- Add round duration support
-- Add reset behavior
-- Add unit tests for start, stop, tick, complete
-- Wire timer page to `SessionEngine`
+- single timer surface exists in `RoundTimer`
+- start/stop behavior exists
+- default Xcode sample model has been removed
 
 Architecture note:
 
-- Avoid building this as a bigger `RoundTimerEngine`.
-- Build it as a block runner, even if the first session has only one block.
+- Keep `RoundTimer` only while it is useful as reference/prototype code.
 
-### Phase 3: Workout Model
+### Phase 2: Workout Session Vertical Slice
 
-Goal: define what a workout is without touching Supabase yet.
+Status: current active implementation.
+
+Completed/started:
+
+- `WorkoutSessionView` is the app's first screen
+- `WorkoutSessionEngine` can start/stop, tick, move previous/next, and auto-advance blocks
+- Supabase fetch path exists for `Workout Alpha`
+- placeholder fallback exists for missing config/offline failure
+
+Next issues:
+
+- add Swift Testing coverage for engine start/stop/tick/advance behavior
+- model explicit session states: idle, running, paused/stopped, complete
+- add completion state instead of representing completion only as `secondsRemaining == 0`
+- decide whether the primary action means stop, pause, or reset
+
+### Phase 3: Extract Workout Domain
+
+Goal: define what a workout is outside the feature screen.
 
 Issues:
 
-- Create local `Workout`
-- Create local `WorkoutBlock`
-- Support block types: warmup, work, rest
-- Add one hardcoded prototype boxing workout
-- Make session engine run a workout block sequence
-- Add tests for block progression
+- move `WorkoutSession` models into `Workouts`
+- rename domain types away from `WorkoutSession*` if appropriate
+- keep block types aligned with Supabase `blocks_json`
+- add one local fallback/prototype workout with real block durations
+- add tests for DTO-to-domain fallback behavior
 
-Architecture note:
+### Phase 4: Extract Supabase Read Path
 
-- This is where the app graduates from timer to guided training.
-- Supabase should still stay out of the app at this phase.
-
-### Phase 4: Workout Runner
-
-Goal: turn the timer into a real guided session, still simple.
+Goal: keep remote reading separate from the runner feature.
 
 Issues:
 
-- Show current block timer
-- Show current block name
-- Add Start / Stop only
-- Auto-advance through blocks
-- Show complete state at the end
-- Do not add settings, stats, badges, or library UI
+- extract `AppConfig` into `SupabaseConfig`
+- extract `WorkoutSessionRow` and `WorkoutSessionBlockRow` into DTO files
+- create a repository that returns domain `Workout` values
+- keep the client read-only
+- keep `WorkoutSessionView` unaware of REST details
 
-Architecture note:
+### Phase 5: Session Engine
 
-- The runner screen should bind to engine snapshots and send engine commands.
-- It should not know how block progression works.
+Goal: make the engine a reusable training state machine.
 
-### Phase 5: Persistence
+Issues:
+
+- rename/extract `WorkoutSessionEngine` to `SessionEngine`
+- expose `SessionSnapshot`
+- add explicit `SessionStatus`
+- support reset behavior
+- support complete state
+- add tests for block progression
+- remove display formatting from the engine or make it a small formatter helper
+
+### Phase 6: Runner Polish
+
+Goal: turn the current vertical slice into the real MVP runner.
+
+Issues:
+
+- show current block timer
+- show current block name
+- show complete state at the end
+- preserve simple previous/next controls if they help testing and coaching flow
+- add up-next preview later
+- do not add settings, stats, badges, or library UI
+
+### Phase 7: Persistence
 
 Goal: save only what is needed.
 
 Issues:
 
-- Add SwiftData completion record
-- Save completed workout timestamp
-- Save duration completed
-- Keep canonical workout definitions out of SwiftData for now unless caching is needed
+- add SwiftData completion record
+- save completed workout timestamp
+- save duration completed
+- save blocks completed
+- keep canonical workout definitions out of SwiftData for now unless caching is needed
 
 Architecture note:
 
 - Completion saving should happen at the edge of the runner flow.
 - The engine can report completion, but should not save it.
 
-### Phase 6: Supabase Read Path
-
-Goal: pull published workouts from the real content source.
-
-Issues:
-
-- Add Supabase config structure
-- Add read-only Supabase client
-- Fetch published workouts
-- Map Supabase DTOs to app domain models
-- Cache fetched workouts locally only after the runner feels right
-
-Architecture note:
-
-- Start with a repository that returns domain `Workout` values.
-- Keep DTOs private to the Supabase module where possible.
-
-### Phase 7: Profiles / Auth
+### Phase 8: Profiles / Auth
 
 Goal: add identity only when the app has something worth identifying.
 
 Issues:
 
-- Add auth module boundary
-- Store session securely in Keychain
-- Connect Supabase auth
-- Associate completions with user profile
-- Add RLS-safe progress write path
+- add auth module boundary
+- store session securely in Keychain
+- connect Supabase auth
+- associate completions with user profile
+- add RLS-safe progress write path
 
 Architecture note:
 
 - Auth should wrap the app, not invade it.
-- The unauthenticated local runner should still be understandable and testable.
+- The unauthenticated runner should still be understandable and testable.
 
 ## Testing Strategy
 
 Start pragmatic:
 
-- Swift Testing for `SessionEngine`.
-- Swift Testing for workout DTO-to-domain mapping once Supabase DTOs exist.
+- Swift Testing for `WorkoutSessionEngine` immediately.
+- Swift Testing for Supabase DTO-to-domain mapping.
+- Swift Testing for `SessionEngine` after extraction.
 - Swift Testing for completion record creation when persistence is added.
-- XCUITest smoke flow: open app, start workout, reach complete state.
+- XCUITest smoke flow: open app, load/fallback workout, start workout, advance blocks, reach complete state.
 
 Do not build a giant test harness before the product shape exists.
 
-## First Build Recommendation
+## Next Build Recommendation
 
-Next technical move:
+The highest-leverage next move is tests plus extraction:
 
-1. Rename or replace `RoundTimerEngine` with a general `SessionEngine`.
-2. Introduce `Workout` and `WorkoutBlock` domain models.
-3. Make the current timer screen run a one-block local workout through the engine.
-4. Add engine tests before adding Supabase, auth, settings, stats, or a library.
+1. Add tests around the current `WorkoutSessionEngine`.
+2. Add an explicit complete/session state so completion is not inferred from zero seconds.
+3. Extract workout domain models from `WorkoutSessionEngine.swift`.
+4. Extract Supabase config/DTO mapping from the feature module.
 
-That gives the app its real spine early while keeping the surface tiny.
+That keeps the working Supabase-powered runner alive while turning the current vertical slice into the deep-module architecture.
