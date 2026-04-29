@@ -2,7 +2,7 @@
 
 ## Status
 
-This document describes the SwiftUI pose/keyframe fallback character. It has been upgraded from a line stickman into a simple filled boxer with gloves, limbs, torso, head, shoes, and shadows. It remains useful as a testable fallback/reference, but the long-term product direction can still move to a polished Rive-powered character. See `RIVE_ACTION_MAN.md` for that renderer direction.
+This document describes the current SwiftUI pose/keyframe Action Man character. It has been upgraded from a line stickman into a simple filled boxer with gloves, limbs, torso, head, shoes, and shadows. This is the active renderer direction for now.
 
 ## Goal
 
@@ -327,7 +327,7 @@ Cons:
 
 Recommendation: skip for now.
 
-### Option 3: Lottie or Rive
+### Option 3: Lottie/Rive-style external animation tools
 
 Good if a designer creates polished vector animations.
 
@@ -343,7 +343,7 @@ Cons:
 - harder to generate combinations programmatically
 - each combo/exercise may need separate authored assets
 
-Recommendation: consider later if the brand wants a more polished mascot.
+Recommendation: parked for now. Do not add an external animation runtime unless Jordan explicitly reopens it.
 
 ### Option 4: Video/GIF clips
 

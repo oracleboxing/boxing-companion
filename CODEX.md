@@ -36,7 +36,7 @@ The app now has a first workout session vertical slice:
 3. `WorkoutSessionEngine` owns active block, countdown, play/pause, previous/next, and completion.
 4. If Supabase fails, the app falls back to a placeholder session.
 
-Current Action Man status: the SwiftUI pose/keyframe system exists as a prototype/fallback, but the product direction has moved to a polished Rive-powered character. Treat [`RIVE_ACTION_MAN.md`](RIVE_ACTION_MAN.md) as the next renderer direction, and [`ACTION_MAN.md`](ACTION_MAN.md) as useful background for animation IDs, fallback behaviour, and workout-state mapping.
+Current Action Man status: the app uses a SwiftUI pose/keyframe character renderer. Treat [`ACTION_MAN.md`](ACTION_MAN.md) as the source of truth for animation IDs, fallback behaviour, and workout-state mapping. Do not add Rive unless Jordan explicitly reopens that direction.
 
 ## Suggested feature structure
 
@@ -67,7 +67,6 @@ Minimum useful tests:
 - Action Man pose interpolation works for the fallback renderer
 - unknown animation ID falls back safely
 - active block maps to the expected animation ID
-- Rive renderer remains isolated behind `ActionManView` once the Rive runtime/asset are added
 
 ## Ask before
 

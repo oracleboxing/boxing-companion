@@ -155,24 +155,26 @@ Near-term guidance:
 
 Owns the animated visual training partner.
 
-Product direction: use Rive for the final USP-level character. The current SwiftUI pose/keyframe renderer is a prototype/fallback, not the final visual identity.
+Current product direction: use the in-app SwiftUI pose/keyframe character. The Rive experiment has been parked so the repo stays focused on the programmable SwiftUI boxer that is already wired into Workout Alpha.
 
-Target files:
+Current files:
 
 ```text
 Boxing Companion/ActionMan/
   ActionManView.swift
+  ActionManRenderer.swift
+  ActionManPose.swift
+  ActionManAnimation.swift
+  ActionManAnimationLibrary.swift
   ActionManAnimationMapper.swift
-  RiveActionManView.swift
-  SwiftUIActionManFallbackView.swift
 ```
 
 Responsibilities:
 
 - receive active workout block animation ID
 - switch the visual character animation safely
-- keep Rive isolated behind `ActionManView`
-- provide safe fallbacks for unknown animation IDs or missing Rive assets
+- render the stylised SwiftUI boxer
+- provide safe fallbacks for unknown animation IDs
 
 Non-responsibilities:
 
@@ -191,7 +193,7 @@ struct ActionManView: View {
 }
 ```
 
-Primary implementation guidance lives in `RIVE_ACTION_MAN.md`. The original SwiftUI fallback/prototype notes live in `ACTION_MAN.md`.
+Primary implementation guidance lives in `ACTION_MAN.md`.
 
 ### Session Engine
 
