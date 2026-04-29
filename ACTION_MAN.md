@@ -1,5 +1,9 @@
 # Action Man Animation System
 
+## Status
+
+This document describes the original SwiftUI pose/keyframe prototype. It remains useful as a fallback/reference, but the product direction has moved to a polished Rive-powered animated character. See `RIVE_ACTION_MAN.md` for the main renderer direction.
+
 ## Goal
 
 Make the simple stick-figure boxer perform the combos and exercises that appear in the active workout.

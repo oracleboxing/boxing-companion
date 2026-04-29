@@ -153,26 +153,26 @@ Near-term guidance:
 
 ### Action Man
 
-Owns the lightweight animated stick-figure boxer.
+Owns the animated visual training partner.
+
+Product direction: use Rive for the final USP-level character. The current SwiftUI pose/keyframe renderer is a prototype/fallback, not the final visual identity.
 
 Target files:
 
 ```text
 Boxing Companion/ActionMan/
   ActionManView.swift
-  ActionManPose.swift
-  ActionManAnimation.swift
-  ActionManAnimationLibrary.swift
-  ActionManRenderer.swift
+  ActionManAnimationMapper.swift
+  RiveActionManView.swift
+  SwiftUIActionManFallbackView.swift
 ```
 
 Responsibilities:
 
-- define stick-figure joint poses
-- define timed keyframe animations
-- interpolate poses
-- render the current pose in SwiftUI
-- provide safe fallbacks for unknown animation IDs
+- receive active workout block animation ID
+- switch the visual character animation safely
+- keep Rive isolated behind `ActionManView`
+- provide safe fallbacks for unknown animation IDs or missing Rive assets
 
 Non-responsibilities:
 
@@ -191,7 +191,7 @@ struct ActionManView: View {
 }
 ```
 
-Full implementation guidance lives in `ACTION_MAN.md`.
+Primary implementation guidance lives in `RIVE_ACTION_MAN.md`. The original SwiftUI fallback/prototype notes live in `ACTION_MAN.md`.
 
 ### Session Engine
 

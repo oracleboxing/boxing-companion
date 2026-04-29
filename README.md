@@ -53,4 +53,5 @@ Read these before building:
 - [`SUPABASE.md`](SUPABASE.md)
 - [`DESIGN.md`](DESIGN.md)
 - [`ACTION_MAN.md`](ACTION_MAN.md)
+- [`RIVE_ACTION_MAN.md`](RIVE_ACTION_MAN.md)
 - [`CODEX.md`](CODEX.md)
