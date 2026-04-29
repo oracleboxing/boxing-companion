@@ -2,11 +2,11 @@
 
 ## Status
 
-This document describes the original SwiftUI pose/keyframe prototype. It remains useful as a fallback/reference, but the product direction has moved to a polished Rive-powered animated character. See `RIVE_ACTION_MAN.md` for the main renderer direction.
+This document describes the SwiftUI pose/keyframe fallback character. It has been upgraded from a line stickman into a simple filled boxer with gloves, limbs, torso, head, shoes, and shadows. It remains useful as a testable fallback/reference, but the long-term product direction can still move to a polished Rive-powered character. See `RIVE_ACTION_MAN.md` for that renderer direction.
 
 ## Goal
 
-Make the simple stick-figure boxer perform the combos and exercises that appear in the active workout.
+Make the simple animated boxer perform the combos and exercises that appear in the active workout.
 
 This should stay lightweight for the MVP. The figure is there to guide rhythm and intent, not to become a full biomechanics simulator.
 
@@ -406,7 +406,8 @@ Result: combos become composable rather than one-off animations.
 
 Keep the visual language simple:
 
-- one-colour figure
+- stylised filled character, not bare skeleton lines
+- gloves, shoes, torso, head, and readable limb shapes
 - smooth but minimal movement
 - readable silhouettes
 - no detailed anatomy yet

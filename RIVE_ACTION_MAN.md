@@ -4,7 +4,7 @@
 
 Action Man should become a polished Rive-powered animated character, not a homemade SwiftUI stickman.
 
-The current SwiftUI pose/keyframe system is useful as a prototype and fallback, but it is not the final USP-level visual direction.
+The current SwiftUI pose/keyframe system is useful as a prototype and fallback. It has been upgraded into a more character-like filled SwiftUI boxer, but it should still be judged as the programmable fallback, not the final Rive asset pipeline.
 
 ## Product goal
 
@@ -237,4 +237,4 @@ The right workflow is:
 
 This should be treated as a product pillar, not decoration.
 
-The fallback stickman can prove state mapping. The Rive character is what makes the feature feel premium.
+The SwiftUI character can prove state mapping and provide a better-than-stickman fallback. The Rive character is still the route if the feature needs truly polished mascot-level animation.
