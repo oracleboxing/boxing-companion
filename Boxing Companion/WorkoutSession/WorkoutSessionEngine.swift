@@ -5,17 +5,23 @@ struct WorkoutSession {
     var discipline: WorkoutDiscipline
     var blocks: [WorkoutSessionBlock]
 
-    var firstBlock: WorkoutSessionBlock {
-        blocks.first ?? WorkoutSessionBlock(title: title, type: .unknown, durationSeconds: 0, animationID: nil)
+    init(title: String, discipline: WorkoutDiscipline = .boxing, blocks: [WorkoutSessionBlock]) {
+        self.title = title
+        self.discipline = discipline
+        self.blocks = blocks.map(\.playable)
     }
 
-    static let placeholder = WorkoutSession(
-        title: "Workout Alpha",
-        discipline: .boxing,
-        blocks: [
-            WorkoutSessionBlock(title: "Workout Alpha", type: .unknown, durationSeconds: 0, animationID: "guard_bounce")
-        ]
-    )
+    var firstBlock: WorkoutSessionBlock {
+        blocks.first ?? WorkoutSessionBlock(title: title, type: .unknown, durationSeconds: 60, animationID: nil)
+    }
+
+    var totalDurationSeconds: Int {
+        blocks.reduce(0) { $0 + $1.durationSeconds }
+    }
+
+    var totalDurationLabel: String {
+        AppTimeFormatter.durationLabel(for: totalDurationSeconds)
+    }
 }
 
 struct WorkoutSessionBlock: Identifiable, Equatable {
@@ -41,6 +47,35 @@ struct WorkoutSessionBlock: Identifiable, Equatable {
     var hasStrengthPrescription: Bool {
         prescription != nil || !equipment.isEmpty || !cues.isEmpty || notes != nil
     }
+
+    var playable: WorkoutSessionBlock {
+        guard durationSeconds > 0 else {
+            var copy = self
+            copy.durationSeconds = 60
+            return copy
+        }
+
+        return self
+    }
+
+    var durationLabel: String {
+        AppTimeFormatter.durationLabel(for: durationSeconds)
+    }
+
+    var typeLabel: String {
+        switch type {
+        case .prep: return "Prep"
+        case .warmup: return "Warm Up"
+        case .skill: return "Skill"
+        case .running: return "Running"
+        case .runningIntervals: return "Running Intervals"
+        case .strength: return "Strength"
+        case .conditioning: return "Conditioning"
+        case .recovery: return "Recovery"
+        case .cooldown: return "Cooldown"
+        case .unknown: return "Workout"
+        }
+    }
 }
 
 enum WorkoutSessionBlockType: String {
@@ -57,7 +92,7 @@ enum WorkoutSessionBlockType: String {
 }
 
 struct WorkoutSessionEngine {
-    private(set) var workout = WorkoutSession.placeholder
+    private(set) var workout = WorkoutFallbackCatalog.placeholderSession
     private(set) var isRunning = false
     private(set) var currentBlockIndex = 0
     private(set) var secondsRemaining = 0
@@ -79,9 +114,7 @@ struct WorkoutSessionEngine {
     }
 
     var formattedTimeRemaining: String {
-        let minutes = secondsRemaining / 60
-        let seconds = secondsRemaining % 60
-        return String(format: "%d:%02d", minutes, seconds)
+        AppTimeFormatter.clockTime(for: secondsRemaining)
     }
 
     var isResting: Bool {
@@ -128,6 +161,11 @@ struct WorkoutSessionEngine {
     }
 
     mutating func startStop() {
+        guard !workout.blocks.isEmpty, workout.firstBlock.durationSeconds > 0 else {
+            isRunning = false
+            return
+        }
+
         if secondsRemaining == 0 {
             reset()
         }

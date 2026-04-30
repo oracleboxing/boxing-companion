@@ -6,40 +6,70 @@ struct WorkoutSessionView: View {
     @State private var loadState = LoadState.loading
 
     private let workout: WorkoutTemplateSummary?
+    private let preloadedSession: WorkoutSession?
+    private let startsAutomatically: Bool
     private let client: WorkoutSessionSupabaseClient
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
-    init(workout: WorkoutTemplateSummary? = nil) {
+    init(
+        workout: WorkoutTemplateSummary? = nil,
+        preloadedSession: WorkoutSession? = nil,
+        startsAutomatically: Bool = false
+    ) {
         self.workout = workout
+        self.preloadedSession = preloadedSession
+        self.startsAutomatically = startsAutomatically
         self.client = WorkoutSessionSupabaseClient(
             workoutID: workout?.id,
             workoutName: workout?.title ?? "Workout Alpha"
         )
+
+        var initialEngine = WorkoutSessionEngine()
+        if let preloadedSession {
+            initialEngine.setWorkout(preloadedSession)
+            if startsAutomatically {
+                initialEngine.startStop()
+            }
+            _loadState = State(initialValue: .loaded)
+        }
+        _engine = State(initialValue: initialEngine)
     }
 
     var body: some View {
-        GeometryReader { proxy in
-            VStack(spacing: 0) {
-                timerZone
-                    .frame(height: topHeight(for: proxy.size.height))
+        VStack(spacing: 0) {
+            AppScreenHeader(
+                title: headerTitle,
+                titleColor: primaryTextColor
+            )
 
-                runnerZone
-                    .frame(height: middleHeight(for: proxy.size.height))
+            GeometryReader { proxy in
+                VStack(spacing: 0) {
+                    timerZone
+                        .frame(height: topHeight(for: proxy.size.height))
 
-                controlsZone
-                    .frame(height: bottomHeight(for: proxy.size.height))
+                    runnerZone
+                        .frame(height: middleHeight(for: proxy.size.height))
+
+                    controlsZone
+                        .frame(height: bottomHeight(for: proxy.size.height))
+                }
             }
         }
-        .padding(24)
+        .padding(.horizontal, 24)
+        .padding(.top, 8)
+        .padding(.bottom, 24)
         .background(screenBackground.ignoresSafeArea())
-        .navigationTitle(workout?.title ?? engine.workout.title)
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
         .task {
             await loadWorkout()
         }
         .onReceive(timer) { _ in
             engine.tick()
         }
+    }
+
+    private var headerTitle: String {
+        workout?.title ?? engine.workout.title
     }
 
     private var timerZone: some View {
@@ -128,7 +158,7 @@ struct WorkoutSessionView: View {
     private var screenBackground: Color {
         engine.isResting
             ? Color(red: 0.05, green: 0.06, blue: 0.07)
-            : Color.systemBackground
+            : AppTheme.ColorToken.screenBackground
     }
 
     private var primaryTextColor: Color {
@@ -136,12 +166,20 @@ struct WorkoutSessionView: View {
     }
 
     private func loadWorkout() async {
+        guard preloadedSession == nil else { return }
+
         do {
             let workout = try await client.fetchWorkout()
             engine.setWorkout(workout)
+            if startsAutomatically {
+                engine.startStop()
+            }
             loadState = .loaded
         } catch {
-            engine.setWorkout(.placeholder)
+            engine.setWorkout(.fallback(for: workout))
+            if startsAutomatically {
+                engine.startStop()
+            }
             loadState = .offline
         }
     }
@@ -173,18 +211,6 @@ private enum LoadState {
     case loading
     case loaded
     case offline
-}
-
-private extension Color {
-    static var systemBackground: Color {
-#if os(iOS)
-        Color(uiColor: .systemBackground)
-#elseif os(macOS)
-        Color(nsColor: .windowBackgroundColor)
-#else
-        Color.white
-#endif
-    }
 }
 
 #Preview {

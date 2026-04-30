@@ -5,7 +5,13 @@ struct ActionManRenderer: View {
 
     let pose: ActionManPose
     var lineColor: Color = .primary
-    var accentColor: Color = Color(red: 0.84, green: 0.62, blue: 0.27)
+
+    private let gloveColor = Color(red: 0.96, green: 0.62, blue: 0.59)
+    private let gloveHighlightColor = Color(red: 1.00, green: 0.78, blue: 0.76)
+    private let gloveStrokeColor = Color(red: 0.55, green: 0.04, blue: 0.03)
+    private let shoeColor = Color(red: 0.55, green: 0.84, blue: 0.58)
+    private let shoeHighlightColor = Color(red: 0.74, green: 0.93, blue: 0.76)
+    private let shoeStrokeColor = Color(red: 0.02, green: 0.32, blue: 0.09)
 
     private var suitColor: Color {
         colorScheme == .dark
@@ -21,12 +27,11 @@ struct ActionManRenderer: View {
         GeometryReader { geometry in
             let size = geometry.size
             let scale = min(size.width, size.height)
-            let limbWidth = max(14, scale * 0.085)
-            let armWidth = max(12, scale * 0.072)
-            let jointSize = max(11, scale * 0.06)
-            let gloveSize = max(23, scale * 0.16)
-            let shoeSize = max(22, scale * 0.15)
-            let headSize = max(34, scale * 0.18)
+            let limbWidth = max(16, scale * 0.105)
+            let armWidth = max(14, scale * 0.095)
+            let gloveSize = max(34, scale * 0.225)
+            let shoeSize = max(28, scale * 0.19)
+            let headSize = max(42, scale * 0.245)
 
             ZStack {
                 groundShadow(in: size)
@@ -46,11 +51,6 @@ struct ActionManRenderer: View {
                 limb(from: pose.leftShoulder, to: pose.leftElbow, width: armWidth, size: size)
                 limb(from: pose.leftElbow, to: pose.leftGlove, width: armWidth * 0.92, size: size)
 
-                joint(at: pose.rightElbow, size: jointSize, canvasSize: size)
-                joint(at: pose.leftElbow, size: jointSize, canvasSize: size)
-                joint(at: pose.rightKnee, size: jointSize, canvasSize: size)
-                joint(at: pose.leftKnee, size: jointSize, canvasSize: size)
-
                 head(size: headSize, canvasSize: size)
 
                 glove(at: pose.rightGlove, size: gloveSize, canvasSize: size)
@@ -63,35 +63,25 @@ struct ActionManRenderer: View {
     private func torso(in size: CGSize) -> some View {
         let chest = map(pose.chest, in: size)
         let pelvis = map(pose.pelvis, in: size)
-        let leftShoulder = map(pose.leftShoulder, in: size)
-        let rightShoulder = map(pose.rightShoulder, in: size)
-        let leftHip = map(pose.leftHip, in: size)
-        let rightHip = map(pose.rightHip, in: size)
+        let neck = map(pose.neck, in: size)
 
         return ZStack {
-            ActionManTorsoShape(
-                leftShoulder: leftShoulder,
-                rightShoulder: rightShoulder,
-                leftHip: leftHip,
-                rightHip: rightHip
-            )
-            .fill(suitColor)
-            .overlay(
-                ActionManTorsoShape(
-                    leftShoulder: leftShoulder,
-                    rightShoulder: rightShoulder,
-                    leftHip: leftHip,
-                    rightHip: rightHip
-                )
-                .stroke(lineColor.opacity(0.9), lineWidth: max(2.5, min(size.width, size.height) * 0.014))
-            )
-
             Capsule(style: .continuous)
-                .fill(accentColor.opacity(0.95))
-                .frame(width: max(7, size.width * 0.035), height: max(38, distance(chest, pelvis) * 0.82))
-                .rotationEffect(.degrees(angle(from: chest, to: pelvis) + 90))
+                .fill(suitColor)
+                .overlay(
+                    Capsule(style: .continuous)
+                        .stroke(lineColor.opacity(0.65), lineWidth: max(2, min(size.width, size.height) * 0.012))
+                )
+                .frame(width: max(22, size.width * 0.15), height: max(72, distance(neck, pelvis)))
+                .rotationEffect(.degrees(angle(from: neck, to: pelvis) + 90))
+                .position(CGPoint(x: (neck.x + pelvis.x) / 2, y: (neck.y + pelvis.y) / 2))
+
+            ActionManShortsShape()
+                .fill(suitColor)
+                .overlay(ActionManShortsShape().stroke(lineColor.opacity(0.65), lineWidth: max(2, size.width * 0.012)))
+                .frame(width: max(48, size.width * 0.30), height: max(28, size.height * 0.105))
                 .position(CGPoint(x: (chest.x + pelvis.x) / 2, y: (chest.y + pelvis.y) / 2))
-                .opacity(0.9)
+                .offset(y: max(30, size.height * 0.10))
         }
     }
 
@@ -116,17 +106,12 @@ struct ActionManRenderer: View {
         ZStack {
             Circle()
                 .fill(suitColor)
-                .overlay(Circle().stroke(lineColor.opacity(0.92), lineWidth: max(2.5, size * 0.09)))
+                .overlay(Circle().stroke(lineColor.opacity(0.72), lineWidth: max(2.5, size * 0.075)))
 
             Capsule(style: .continuous)
-                .fill(accentColor.opacity(0.92))
-                .frame(width: size * 0.46, height: size * 0.10)
-                .offset(x: -size * 0.04, y: -size * 0.02)
-
-            Circle()
-                .fill(lineColor.opacity(0.78))
-                .frame(width: size * 0.08, height: size * 0.08)
-                .offset(x: -size * 0.13, y: -size * 0.04)
+                .fill(Color.white.opacity(colorScheme == .dark ? 0.92 : 0.96))
+                .frame(width: size * 0.58, height: size * 0.10)
+                .offset(x: -size * 0.02, y: -size * 0.16)
         }
         .frame(width: size, height: size)
         .position(map(pose.head, in: canvasSize))
@@ -135,15 +120,15 @@ struct ActionManRenderer: View {
     private func glove(at point: CGPoint, size: CGFloat, canvasSize: CGSize) -> some View {
         ZStack {
             RoundedRectangle(cornerRadius: size * 0.33, style: .continuous)
-                .fill(accentColor)
+                .fill(gloveColor)
                 .overlay(
                     RoundedRectangle(cornerRadius: size * 0.33, style: .continuous)
-                        .stroke(lineColor.opacity(0.86), lineWidth: max(2.5, size * 0.12))
+                        .stroke(gloveStrokeColor.opacity(colorScheme == .dark ? 0.95 : 0.86), lineWidth: max(3, size * 0.10))
                 )
 
             Circle()
-                .fill(accentColor.opacity(0.82))
-                .overlay(Circle().stroke(lineColor.opacity(0.55), lineWidth: max(1.5, size * 0.06)))
+                .fill(gloveHighlightColor.opacity(0.82))
+                .overlay(Circle().stroke(gloveStrokeColor.opacity(0.55), lineWidth: max(1.5, size * 0.06)))
                 .frame(width: size * 0.43, height: size * 0.43)
                 .offset(x: -size * 0.22, y: -size * 0.08)
         }
@@ -153,23 +138,22 @@ struct ActionManRenderer: View {
     }
 
     private func shoe(at point: CGPoint, size: CGFloat, canvasSize: CGSize) -> some View {
-        Capsule(style: .continuous)
-            .fill(suitColor)
-            .overlay(
-                Capsule(style: .continuous)
-                    .stroke(lineColor.opacity(0.88), lineWidth: max(2, size * 0.10))
-            )
-            .frame(width: size * 1.25, height: size * 0.48)
-            .rotationEffect(.degrees(-4))
-            .position(map(point, in: canvasSize))
-    }
+        ZStack {
+            Capsule(style: .continuous)
+                .fill(shoeColor)
+                .overlay(
+                    Capsule(style: .continuous)
+                        .stroke(shoeStrokeColor.opacity(colorScheme == .dark ? 0.95 : 0.88), lineWidth: max(2, size * 0.10))
+                )
 
-    private func joint(at point: CGPoint, size: CGFloat, canvasSize: CGSize) -> some View {
-        Circle()
-            .fill(suitColor)
-            .overlay(Circle().stroke(lineColor.opacity(0.65), lineWidth: max(1.5, size * 0.12)))
-            .frame(width: size, height: size)
-            .position(map(point, in: canvasSize))
+            Capsule(style: .continuous)
+                .fill(shoeHighlightColor.opacity(0.72))
+                .frame(width: size * 0.52, height: size * 0.10)
+                .offset(x: size * 0.15, y: -size * 0.06)
+        }
+        .frame(width: size * 1.25, height: size * 0.48)
+        .rotationEffect(.degrees(-4))
+        .position(map(point, in: canvasSize))
     }
 
     private func groundShadow(in size: CGSize) -> some View {
@@ -192,24 +176,17 @@ struct ActionManRenderer: View {
     }
 }
 
-private struct ActionManTorsoShape: Shape {
-    let leftShoulder: CGPoint
-    let rightShoulder: CGPoint
-    let leftHip: CGPoint
-    let rightHip: CGPoint
-
+private struct ActionManShortsShape: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
-        path.move(to: leftShoulder)
-        path.addQuadCurve(to: rightShoulder, control: midpoint(leftShoulder, rightShoulder, yOffset: -10))
-        path.addLine(to: rightHip)
-        path.addQuadCurve(to: leftHip, control: midpoint(leftHip, rightHip, yOffset: 8))
+        path.move(to: CGPoint(x: rect.minX + rect.width * 0.16, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX - rect.width * 0.12, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX - rect.width * 0.26, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.midX + rect.width * 0.06, y: rect.minY + rect.height * 0.82))
+        path.addLine(to: CGPoint(x: rect.midX - rect.width * 0.06, y: rect.minY + rect.height * 0.82))
+        path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.26, y: rect.maxY))
         path.closeSubpath()
         return path
-    }
-
-    private func midpoint(_ first: CGPoint, _ second: CGPoint, yOffset: CGFloat) -> CGPoint {
-        CGPoint(x: (first.x + second.x) / 2, y: (first.y + second.y) / 2 + yOffset)
     }
 }
 

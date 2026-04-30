@@ -2,6 +2,8 @@ import SwiftUI
 import Combine
 
 struct RoundTimerView: View {
+    @Environment(\.dismiss) private var dismiss
+
     private let roundDurations = [60, 120, 180, 240, 300]
     private let restDurations = [30, 45, 60, 90, 120]
     private let rounds = Array(1...12) + [0]
@@ -17,95 +19,98 @@ struct RoundTimerView: View {
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            VStack(spacing: 22) {
-                Spacer(minLength: 8)
+        VStack(spacing: 22) {
+            AppScreenHeader(
+                title: "Boxing Round Timer",
+                titleColor: timerTextColor,
+                showsBackButton: !isInSetup,
+                onBack: handleBack
+            )
 
-                if !isInSetup {
-                    VStack(spacing: 10) {
-                        Text(formattedTime(engine.secondsRemaining))
-                            .font(.system(size: 168, weight: .heavy, design: .default))
-                            .fontWidth(.condensed)
-                            .monospacedDigit()
+            Spacer(minLength: 8)
+
+            if !isInSetup {
+                VStack(spacing: 10) {
+                    Text(formattedTime(engine.secondsRemaining))
+                        .font(.system(size: 168, weight: .heavy, design: .default))
+                        .fontWidth(.condensed)
+                        .monospacedDigit()
                         .scaleEffect(x: 0.94, y: 1.34, anchor: .center)
                         .minimumScaleFactor(0.7)
                         .lineLimit(1)
                         .foregroundStyle(timerTextColor)
 
-                        Text(roundProgressText)
-                            .font(.title3.weight(.semibold))
-                            .foregroundStyle(progressTextColor)
-                    }
+                    Text(roundProgressText)
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(progressTextColor)
                 }
+            }
 
-                if isInSetup {
-                    RoundTimerWheelRow(
-                        restSelection: $selectedRestDuration,
-                        roundSelection: $selectedRoundDuration,
-                        roundsSelection: $selectedRounds,
-                        restValues: restDurations,
-                        roundValues: roundDurations,
-                        rounds: rounds
-                    )
-                    .onChange(of: selectedRoundDuration) { _, _ in applySettings() }
-                    .onChange(of: selectedRestDuration) { _, _ in applySettings() }
-                    .onChange(of: selectedRounds) { _, _ in applySettings() }
+            if isInSetup {
+                RoundTimerWheelRow(
+                    restSelection: $selectedRestDuration,
+                    roundSelection: $selectedRoundDuration,
+                    roundsSelection: $selectedRounds,
+                    restValues: restDurations,
+                    roundValues: roundDurations,
+                    rounds: rounds
+                )
+                .onChange(of: selectedRoundDuration) { _, _ in applySettings() }
+                .onChange(of: selectedRestDuration) { _, _ in applySettings() }
+                .onChange(of: selectedRounds) { _, _ in applySettings() }
 
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("PREPARE")
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.primary.opacity(0.72))
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("PREPARE")
+                        .font(AppTheme.FontToken.sectionLabel)
+                        .foregroundStyle(AppTheme.ColorToken.secondaryText)
 
-                        Picker("Prepare", selection: $selectedPrepareDuration) {
-                            ForEach(prepareOptions, id: \.self) { duration in
-                                Text(prepareLabel(duration))
-                                    .tag(duration)
-                            }
+                    Picker("Prepare", selection: $selectedPrepareDuration) {
+                        ForEach(prepareOptions, id: \.self) { duration in
+                            Text(prepareLabel(duration))
+                                .tag(duration)
                         }
-                        .pickerStyle(.segmented)
                     }
-                    .padding(.top, 18)
+                    .pickerStyle(.segmented)
                 }
-
-                Spacer(minLength: 8)
-
-                Button {
-                    if isInSetup {
-                        applySettings()
-                        isInSetup = false
-                        engine.startStop()
-                    } else {
-                        engine.startStop()
-                    }
-                } label: {
-                    Text(engine.isRunning ? "STOP" : "START")
-                        .font(.system(size: 44, weight: .bold))
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 104)
-                }
-                .buttonStyle(.plain)
-                .background(startStopBackground)
-                .foregroundStyle(startStopForegroundColor)
-                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                .shadow(color: startStopShadowColor, radius: 14, y: 8)
+                .padding(.top, 2)
             }
 
-            if !isInSetup {
-                Button {
-                    engine.reset()
-                    isInSetup = true
-                } label: {
-                    Label("Back", systemImage: "chevron.left")
-                        .font(.system(size: 18, weight: .semibold))
+            Spacer(minLength: 8)
+
+            Button {
+                if isInSetup {
+                    applySettings()
+                    isInSetup = false
+                    engine.startStop()
+                } else {
+                    engine.startStop()
                 }
-                .buttonStyle(.plain)
-                .foregroundStyle(timerTextColor)
+            } label: {
+                Text(engine.isRunning ? "STOP" : "START")
+                    .font(.system(size: 44, weight: .bold))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 104)
             }
+            .buttonStyle(.plain)
+            .background(startStopBackground)
+            .foregroundStyle(startStopForegroundColor)
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.button, style: .continuous))
+            .shadow(color: startStopShadowColor, radius: 14, y: 8)
         }
-        .padding(24)
+        .padding(AppTheme.Spacing.screenHorizontal)
         .background(screenBackground.ignoresSafeArea())
+        .navigationBarBackButtonHidden(true)
         .onReceive(timer) { _ in
             engine.tick()
+        }
+    }
+
+    private func handleBack() {
+        if isInSetup {
+            dismiss()
+        } else {
+            engine.reset()
+            isInSetup = true
         }
     }
 
@@ -126,20 +131,20 @@ struct RoundTimerView: View {
 
     private var screenBackground: Color {
         !isInSetup && engine.phase == .rest
-            ? Color(red: 0.05, green: 0.06, blue: 0.07)
-            : Color.systemBackground
+            ? AppTheme.ColorToken.restSurface
+            : AppTheme.ColorToken.screenBackground
     }
 
     private var progressTextColor: Color {
         engine.phase == .rest
             ? Color.white.opacity(0.72)
-            : .primary
+            : AppTheme.ColorToken.primaryText
     }
 
     private var timerTextColor: Color {
         !isInSetup && engine.phase == .rest
             ? .white
-            : .primary
+            : AppTheme.ColorToken.primaryText
     }
 
     private func applySettings() {
@@ -185,18 +190,6 @@ struct RoundTimerView: View {
 
 }
 
-private extension Color {
-    static var systemBackground: Color {
-#if os(iOS)
-        Color(uiColor: .systemBackground)
-#elseif os(macOS)
-        Color(nsColor: .windowBackgroundColor)
-#else
-        Color.white
-#endif
-    }
-}
-
 private struct RoundTimerWheelRow: View {
     @Binding var restSelection: Int
     @Binding var roundSelection: Int
@@ -213,8 +206,8 @@ private struct RoundTimerWheelRow: View {
                 Text("ROUND").frame(maxWidth: .infinity)
                 Text("ROUNDS").frame(maxWidth: .infinity)
             }
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(.primary.opacity(0.72))
+            .font(AppTheme.FontToken.sectionLabel)
+            .foregroundStyle(AppTheme.ColorToken.secondaryText)
 
             GeometryReader { proxy in
                 ZStack {
@@ -435,7 +428,7 @@ private struct FixedSelectionUnit: View {
     var body: some View {
         Text(text)
             .font(.subheadline.weight(.semibold))
-            .foregroundStyle(.primary)
+            .foregroundStyle(AppTheme.ColorToken.primaryText)
             .frame(maxWidth: .infinity, alignment: .center)
             .offset(x: text.isEmpty ? 0 : unitOffset - numberOffset)
             .allowsHitTesting(false)

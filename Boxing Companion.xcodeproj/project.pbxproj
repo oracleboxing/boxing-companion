@@ -6,6 +6,31 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		BC0000010000000000000001 /* Boxing_CompanionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000101 /* Boxing_CompanionApp.swift */; };
+		BC0000010000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000102 /* ContentView.swift */; };
+		BC0000010000000000000003 /* ActionManAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000103 /* ActionManAnimation.swift */; };
+		BC0000010000000000000004 /* ActionManAnimationLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000104 /* ActionManAnimationLibrary.swift */; };
+		BC0000010000000000000005 /* ActionManAnimationMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000105 /* ActionManAnimationMapper.swift */; };
+		BC0000010000000000000006 /* ActionManPose.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000106 /* ActionManPose.swift */; };
+		BC0000010000000000000007 /* ActionManRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000107 /* ActionManRenderer.swift */; };
+		BC0000010000000000000008 /* ActionManView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000108 /* ActionManView.swift */; };
+		BC0000010000000000000009 /* RoundTimerEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000109 /* RoundTimerEngine.swift */; };
+		BC000001000000000000000A /* RoundTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC000001000000000000010A /* RoundTimerView.swift */; };
+		BC000001000000000000000B /* WorkoutSessionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC000001000000000000010B /* WorkoutSessionEngine.swift */; };
+		BC000001000000000000000C /* WorkoutSessionSupabaseClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC000001000000000000010C /* WorkoutSessionSupabaseClient.swift */; };
+		BC000001000000000000000D /* WorkoutSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC000001000000000000010D /* WorkoutSessionView.swift */; };
+		BC0000010000000000000016 /* WorkoutRunnerViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000116 /* WorkoutRunnerViews.swift */; };
+		BC000001000000000000000E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BC000001000000000000010E /* Assets.xcassets */; };
+		BC000001000000000000000F /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC000001000000000000010F /* AppConfig.swift */; };
+		BC0000010000000000000010 /* WorkoutLibrarySupabaseClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000110 /* WorkoutLibrarySupabaseClient.swift */; };
+		BC0000010000000000000011 /* WorkoutLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000111 /* WorkoutLibraryView.swift */; };
+		BC0000010000000000000012 /* WorkoutTemplateSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000112 /* WorkoutTemplateSummary.swift */; };
+		BC0000010000000000000013 /* Supabase.local.env in Resources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000113 /* Supabase.local.env */; };
+		BC0000010000000000000014 /* AppScreenHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000114 /* AppScreenHeader.swift */; };
+		BC0000010000000000000015 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000115 /* AppTheme.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		98333D5A2FA1CD9300AB95C8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,17 +49,34 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BC0000010000000000000101 /* Boxing_CompanionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Boxing_CompanionApp.swift; sourceTree = "<group>"; };
+		BC0000010000000000000102 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		BC0000010000000000000103 /* ActionManAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionManAnimation.swift; sourceTree = "<group>"; };
+		BC0000010000000000000104 /* ActionManAnimationLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionManAnimationLibrary.swift; sourceTree = "<group>"; };
+		BC0000010000000000000105 /* ActionManAnimationMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionManAnimationMapper.swift; sourceTree = "<group>"; };
+		BC0000010000000000000106 /* ActionManPose.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionManPose.swift; sourceTree = "<group>"; };
+		BC0000010000000000000107 /* ActionManRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionManRenderer.swift; sourceTree = "<group>"; };
+		BC0000010000000000000108 /* ActionManView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionManView.swift; sourceTree = "<group>"; };
+		BC0000010000000000000109 /* RoundTimerEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundTimerEngine.swift; sourceTree = "<group>"; };
+		BC000001000000000000010A /* RoundTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundTimerView.swift; sourceTree = "<group>"; };
+		BC000001000000000000010B /* WorkoutSessionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutSessionEngine.swift; sourceTree = "<group>"; };
+		BC000001000000000000010C /* WorkoutSessionSupabaseClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutSessionSupabaseClient.swift; sourceTree = "<group>"; };
+		BC000001000000000000010D /* WorkoutSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutSessionView.swift; sourceTree = "<group>"; };
+		BC0000010000000000000116 /* WorkoutRunnerViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutRunnerViews.swift; sourceTree = "<group>"; };
+		BC000001000000000000010E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		BC000001000000000000010F /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
+		BC0000010000000000000110 /* WorkoutLibrarySupabaseClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutLibrarySupabaseClient.swift; sourceTree = "<group>"; };
+		BC0000010000000000000111 /* WorkoutLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutLibraryView.swift; sourceTree = "<group>"; };
+		BC0000010000000000000112 /* WorkoutTemplateSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutTemplateSummary.swift; sourceTree = "<group>"; };
+		BC0000010000000000000113 /* Supabase.local.env */ = {isa = PBXFileReference; lastKnownFileType = text; path = Supabase.local.env; sourceTree = "<group>"; };
+		BC0000010000000000000114 /* AppScreenHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppScreenHeader.swift; sourceTree = "<group>"; };
+		BC0000010000000000000115 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		98333D4A2FA1CD8F00AB95C8 /* Boxing Companion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Boxing Companion.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		98333D592FA1CD9300AB95C8 /* Boxing CompanionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Boxing CompanionTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		98333D632FA1CD9300AB95C8 /* Boxing CompanionUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Boxing CompanionUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		98333D4C2FA1CD8F00AB95C8 /* Boxing Companion */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Boxing Companion";
-			sourceTree = "<group>";
-		};
 		98333D5C2FA1CD9300AB95C8 /* Boxing CompanionTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Boxing CompanionTests";
@@ -72,6 +114,83 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		98333D4C2FA1CD8F00AB95C8 /* Boxing Companion */ = {
+			isa = PBXGroup;
+			children = (
+				BC000001000000000000010E /* Assets.xcassets */,
+				BC0000010000000000000101 /* Boxing_CompanionApp.swift */,
+				BC0000010000000000000102 /* ContentView.swift */,
+				BC0000010000000000000204 /* App */,
+				BC0000010000000000000201 /* ActionMan */,
+				BC0000010000000000000202 /* RoundTimer */,
+				BC0000010000000000000203 /* WorkoutSession */,
+				BC0000010000000000000205 /* Workouts */,
+				BC0000010000000000000206 /* DesignSystem */,
+				BC0000010000000000000113 /* Supabase.local.env */,
+			);
+			path = "Boxing Companion";
+			sourceTree = "<group>";
+		};
+		BC0000010000000000000204 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				BC000001000000000000010F /* AppConfig.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		BC0000010000000000000205 /* Workouts */ = {
+			isa = PBXGroup;
+			children = (
+				BC0000010000000000000110 /* WorkoutLibrarySupabaseClient.swift */,
+				BC0000010000000000000111 /* WorkoutLibraryView.swift */,
+				BC0000010000000000000112 /* WorkoutTemplateSummary.swift */,
+			);
+			path = Workouts;
+			sourceTree = "<group>";
+		};
+		BC0000010000000000000206 /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				BC0000010000000000000114 /* AppScreenHeader.swift */,
+				BC0000010000000000000115 /* AppTheme.swift */,
+			);
+			path = DesignSystem;
+			sourceTree = "<group>";
+		};
+		BC0000010000000000000201 /* ActionMan */ = {
+			isa = PBXGroup;
+			children = (
+				BC0000010000000000000103 /* ActionManAnimation.swift */,
+				BC0000010000000000000104 /* ActionManAnimationLibrary.swift */,
+				BC0000010000000000000105 /* ActionManAnimationMapper.swift */,
+				BC0000010000000000000106 /* ActionManPose.swift */,
+				BC0000010000000000000107 /* ActionManRenderer.swift */,
+				BC0000010000000000000108 /* ActionManView.swift */,
+			);
+			path = ActionMan;
+			sourceTree = "<group>";
+		};
+		BC0000010000000000000202 /* RoundTimer */ = {
+			isa = PBXGroup;
+			children = (
+				BC0000010000000000000109 /* RoundTimerEngine.swift */,
+				BC000001000000000000010A /* RoundTimerView.swift */,
+			);
+			path = RoundTimer;
+			sourceTree = "<group>";
+		};
+		BC0000010000000000000203 /* WorkoutSession */ = {
+			isa = PBXGroup;
+			children = (
+				BC000001000000000000010B /* WorkoutSessionEngine.swift */,
+				BC000001000000000000010C /* WorkoutSessionSupabaseClient.swift */,
+				BC000001000000000000010D /* WorkoutSessionView.swift */,
+				BC0000010000000000000116 /* WorkoutRunnerViews.swift */,
+			);
+			path = WorkoutSession;
+			sourceTree = "<group>";
+		};
 		98333D412FA1CD8F00AB95C8 = {
 			isa = PBXGroup;
 			children = (
@@ -108,7 +227,6 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				98333D4C2FA1CD8F00AB95C8 /* Boxing Companion */,
 			);
 			name = "Boxing Companion";
 			packageProductDependencies = (
@@ -212,6 +330,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BC000001000000000000000E /* Assets.xcassets in Resources */,
+				BC0000010000000000000013 /* Supabase.local.env in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,6 +356,26 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BC0000010000000000000003 /* ActionManAnimation.swift in Sources */,
+				BC0000010000000000000004 /* ActionManAnimationLibrary.swift in Sources */,
+				BC0000010000000000000005 /* ActionManAnimationMapper.swift in Sources */,
+				BC0000010000000000000006 /* ActionManPose.swift in Sources */,
+				BC0000010000000000000007 /* ActionManRenderer.swift in Sources */,
+				BC0000010000000000000008 /* ActionManView.swift in Sources */,
+				BC000001000000000000000F /* AppConfig.swift in Sources */,
+				BC0000010000000000000014 /* AppScreenHeader.swift in Sources */,
+				BC0000010000000000000015 /* AppTheme.swift in Sources */,
+				BC0000010000000000000001 /* Boxing_CompanionApp.swift in Sources */,
+				BC0000010000000000000002 /* ContentView.swift in Sources */,
+				BC0000010000000000000009 /* RoundTimerEngine.swift in Sources */,
+				BC000001000000000000000A /* RoundTimerView.swift in Sources */,
+				BC0000010000000000000010 /* WorkoutLibrarySupabaseClient.swift in Sources */,
+				BC0000010000000000000011 /* WorkoutLibraryView.swift in Sources */,
+				BC0000010000000000000012 /* WorkoutTemplateSummary.swift in Sources */,
+				BC000001000000000000000B /* WorkoutSessionEngine.swift in Sources */,
+				BC000001000000000000000C /* WorkoutSessionSupabaseClient.swift in Sources */,
+				BC000001000000000000000D /* WorkoutSessionView.swift in Sources */,
+				BC0000010000000000000016 /* WorkoutRunnerViews.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

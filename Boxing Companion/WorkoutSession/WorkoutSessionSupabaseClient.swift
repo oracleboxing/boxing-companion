@@ -1,43 +1,21 @@
 import Foundation
 
 struct WorkoutSessionSupabaseClient {
-    enum ClientError: Error {
-        case missingConfiguration
-        case invalidResponse
-    }
-
     var workoutID: String?
     var workoutName = "Workout Alpha"
 
     func fetchWorkout() async throws -> WorkoutSession {
-        guard
-            let baseURL = AppConfig.supabaseURL,
-            let anonKey = AppConfig.supabaseAnonKey
-        else {
-            throw ClientError.missingConfiguration
+        guard let client = SupabaseRestClient() else {
+            throw SupabaseRestClient.ClientError.missingConfiguration
         }
 
-        var components = URLComponents(string: "\(baseURL)/rest/v1/workout_templates")
-        components?.queryItems = queryItems()
+        let rows: [WorkoutSessionRow] = try await client.fetchRows(
+            from: "workout_templates",
+            queryItems: queryItems()
+        )
 
-        guard let url = components?.url else {
-            throw ClientError.missingConfiguration
-        }
-
-        var request = URLRequest(url: url)
-        request.setValue(anonKey, forHTTPHeaderField: "apikey")
-        request.setValue("Bearer \(anonKey)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
-
-        let (data, response) = try await URLSession.shared.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse, 200..<300 ~= httpResponse.statusCode else {
-            throw ClientError.invalidResponse
-        }
-
-        let rows = try JSONDecoder().decode([WorkoutSessionRow].self, from: data)
         guard let row = rows.first else {
-            return WorkoutSession.placeholder
+            throw SupabaseRestClient.ClientError.invalidResponse
         }
 
         return row.session(named: workoutName)
@@ -53,7 +31,7 @@ struct WorkoutSessionSupabaseClient {
             URLQueryItem(name: "limit", value: "1")
         ]
 
-        if let workoutID, !workoutID.hasPrefix("fallback-") {
+        if let workoutID, !WorkoutFallbackCatalog.isFallbackWorkoutID(workoutID) {
             items.append(URLQueryItem(name: "id", value: "eq.\(workoutID)"))
         } else {
             items.append(URLQueryItem(name: "title", value: "ilike.*\(workoutName)*"))
@@ -83,7 +61,7 @@ private struct WorkoutSessionRow: Decodable {
         return WorkoutSession(
             title: displayTitle,
             discipline: .from(discipline),
-            blocks: blocks.isEmpty ? [WorkoutSessionBlock(title: summary ?? displayTitle, type: .unknown, durationSeconds: 0, animationID: "guard_bounce")] : blocks
+            blocks: blocks.isEmpty ? [WorkoutSessionBlock(title: summary ?? displayTitle, type: .unknown, durationSeconds: 60, animationID: "guard_bounce")] : blocks
         )
     }
 }
@@ -105,9 +83,14 @@ private struct WorkoutSessionBlockRow: Decodable {
 
     enum CodingKeys: String, CodingKey {
         case title
+        case name
         case type
+        case blockType = "block_type"
         case durationSeconds = "duration_seconds"
+        case duration
+        case seconds
         case animationID = "animation_id"
+        case animation
         case intensity
         case incline
         case prescription
@@ -117,6 +100,27 @@ private struct WorkoutSessionBlockRow: Decodable {
         case workSeconds = "work_seconds"
         case restSeconds = "rest_seconds"
         case equipment
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        title = try container.decodeIfPresent(String.self, forKey: .title)
+            ?? container.decodeIfPresent(String.self, forKey: .name)
+        type = try container.decodeIfPresent(String.self, forKey: .type)
+            ?? container.decodeIfPresent(String.self, forKey: .blockType)
+        durationSeconds = Self.decodeInt(from: container, keys: [.durationSeconds, .duration, .seconds])
+        animationID = try container.decodeIfPresent(String.self, forKey: .animationID)
+            ?? container.decodeIfPresent(String.self, forKey: .animation)
+        intensity = try container.decodeIfPresent(String.self, forKey: .intensity)
+        incline = try container.decodeIfPresent(String.self, forKey: .incline)
+        prescription = try container.decodeIfPresent(String.self, forKey: .prescription)
+        notes = try container.decodeIfPresent(String.self, forKey: .notes)
+        cues = try container.decodeIfPresent([String].self, forKey: .cues)
+        repeatCount = Self.decodeInt(from: container, keys: [.repeatCount])
+        workSeconds = Self.decodeInt(from: container, keys: [.workSeconds])
+        restSeconds = Self.decodeInt(from: container, keys: [.restSeconds])
+        equipment = try container.decodeIfPresent([String].self, forKey: .equipment)
     }
 
     var block: WorkoutSessionBlock {
@@ -135,5 +139,29 @@ private struct WorkoutSessionBlockRow: Decodable {
             restSeconds: restSeconds,
             equipment: equipment ?? []
         )
+    }
+
+    private static func decodeInt(
+        from container: KeyedDecodingContainer<CodingKeys>,
+        keys: [CodingKeys]
+    ) -> Int? {
+        for key in keys {
+            if let value = try? container.decodeIfPresent(Int.self, forKey: key) {
+                return value
+            }
+
+            if let value = try? container.decodeIfPresent(Double.self, forKey: key) {
+                return Int(value)
+            }
+
+            if
+                let value = try? container.decodeIfPresent(String.self, forKey: key),
+                let intValue = Int(value)
+            {
+                return intValue
+            }
+        }
+
+        return nil
     }
 }
