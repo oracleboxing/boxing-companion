@@ -172,7 +172,7 @@ struct WorkoutSessionView: View {
             }
             loadState = .loaded
         } catch {
-            engine.setWorkout(WorkoutFallbackCatalog.session(for: workout))
+            engine.setWorkout(WorkoutFallbackCatalog.fallbackSession(for: workout))
             if startsAutomatically {
                 engine.startStop()
             }

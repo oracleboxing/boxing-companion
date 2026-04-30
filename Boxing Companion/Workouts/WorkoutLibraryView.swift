@@ -116,7 +116,9 @@ private struct WorkoutLibraryPage<Content: View>: View {
             .padding(.bottom, 24)
         }
         .background(AppTheme.ColorToken.screenBackground.ignoresSafeArea())
+#if os(iOS)
         .toolbar(.hidden, for: .navigationBar)
+#endif
     }
 }
 
@@ -211,7 +213,7 @@ private struct WorkoutPreviewView: View {
     }
 
     private var displaySession: WorkoutSession {
-        session ?? WorkoutFallbackCatalog.session(for: workout)
+        session ?? WorkoutFallbackCatalog.fallbackSession(for: workout)
     }
 
     private var planSections: [WorkoutPreviewSection] {
@@ -232,7 +234,7 @@ private struct WorkoutPreviewView: View {
         loadState = .loading
 
         if WorkoutFallbackCatalog.isFallbackWorkoutID(workout.id) {
-            session = WorkoutFallbackCatalog.session(for: workout)
+            session = WorkoutFallbackCatalog.fallbackSession(for: workout)
             loadState = .offline
             return
         }
@@ -241,7 +243,7 @@ private struct WorkoutPreviewView: View {
             session = try await client.fetchWorkout()
             loadState = .loaded
         } catch {
-            session = WorkoutFallbackCatalog.session(for: workout)
+            session = WorkoutFallbackCatalog.fallbackSession(for: workout)
             loadState = .offline
         }
     }

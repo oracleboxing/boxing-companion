@@ -92,7 +92,7 @@ enum WorkoutSessionBlockType: String {
 }
 
 struct WorkoutSessionEngine {
-    private(set) var workout = WorkoutFallbackCatalog.placeholderSession
+    private(set) var workout = WorkoutFallbackCatalog.defaultSession
     private(set) var isRunning = false
     private(set) var currentBlockIndex = 0
     private(set) var secondsRemaining = 0

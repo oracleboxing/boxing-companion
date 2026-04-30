@@ -21,10 +21,6 @@ struct WorkoutSessionSupabaseClient {
         return row.session(named: workoutName)
     }
 
-    func fetchWorkoutAlpha() async throws -> WorkoutSession {
-        try await fetchWorkout()
-    }
-
     private func queryItems() -> [URLQueryItem] {
         var items = [
             URLQueryItem(name: "select", value: "id,title,summary,discipline,blocks_json"),

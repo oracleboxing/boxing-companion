@@ -34,7 +34,7 @@ enum WorkoutFallbackCatalog {
         )
     ]
 
-    static let placeholderSession = WorkoutSession(
+    static let defaultSession = WorkoutSession(
         title: "Workout Alpha",
         discipline: .boxing,
         blocks: [
@@ -48,9 +48,9 @@ enum WorkoutFallbackCatalog {
         ]
     )
 
-    static func session(for workout: WorkoutTemplateSummary?) -> WorkoutSession {
+    static func fallbackSession(for workout: WorkoutTemplateSummary?) -> WorkoutSession {
         guard let workout else {
-            return placeholderSession
+            return defaultSession
         }
 
         switch workout.discipline {
@@ -81,7 +81,7 @@ enum WorkoutFallbackCatalog {
                 ]
             )
         default:
-            return placeholderSession
+            return defaultSession
         }
     }
 
