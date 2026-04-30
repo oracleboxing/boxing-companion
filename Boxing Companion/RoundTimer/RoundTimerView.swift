@@ -91,11 +91,7 @@ struct RoundTimerView: View {
                     .frame(maxWidth: .infinity)
                     .frame(height: 104)
             }
-            .buttonStyle(.plain)
-            .background(startStopBackground)
-            .foregroundStyle(startStopForegroundColor)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.button, style: .continuous))
-            .shadow(color: startStopShadowColor, radius: 14, y: 8)
+            .appPrimaryActionStyle(engine.isRunning ? .stop : .start)
         }
         .padding(AppTheme.Spacing.screenHorizontal)
         .background(screenBackground.ignoresSafeArea())
@@ -157,35 +153,11 @@ struct RoundTimerView: View {
     }
 
     private func formattedTime(_ seconds: Int) -> String {
-        let minutes = seconds / 60
-        let remainingSeconds = seconds % 60
-        return String(format: "%d:%02d", minutes, remainingSeconds)
+        AppTimeFormatter.clockTime(for: seconds)
     }
 
     private func prepareLabel(_ seconds: Int) -> String {
         seconds == 0 ? "Off" : "\(seconds) sec"
-    }
-
-    private var startStopBackground: some ShapeStyle {
-        LinearGradient(
-            colors: engine.isRunning
-                ? [Color(red: 1.00, green: 0.78, blue: 0.76), Color(red: 0.96, green: 0.62, blue: 0.59)]
-                : [Color(red: 0.74, green: 0.93, blue: 0.76), Color(red: 0.55, green: 0.84, blue: 0.58)],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-    }
-
-    private var startStopShadowColor: Color {
-        engine.isRunning
-            ? Color(red: 0.68, green: 0.12, blue: 0.10).opacity(0.24)
-            : Color(red: 0.12, green: 0.45, blue: 0.16).opacity(0.24)
-    }
-
-    private var startStopForegroundColor: Color {
-        engine.isRunning
-            ? Color(red: 0.55, green: 0.04, blue: 0.03)
-            : Color(red: 0.02, green: 0.32, blue: 0.09)
     }
 
 }

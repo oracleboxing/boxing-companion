@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct WorkoutLibraryView: View {
-    @State private var loadState = WorkoutLibraryLoadState.loading
+    @State private var loadState = AppLoadState.loading
     @State private var workouts: [WorkoutTemplateSummary] = []
 
     private let client = WorkoutLibrarySupabaseClient()
@@ -48,10 +48,10 @@ struct WorkoutLibraryView: View {
 
         do {
             let fetchedWorkouts = try await client.fetchPublishedWorkouts()
-            workouts = fetchedWorkouts.isEmpty ? WorkoutTemplateSummary.fallbackWorkouts : fetchedWorkouts
+            workouts = fetchedWorkouts.isEmpty ? WorkoutFallbackCatalog.workouts : fetchedWorkouts
             loadState = .loaded
         } catch {
-            workouts = WorkoutTemplateSummary.fallbackWorkouts
+            workouts = WorkoutFallbackCatalog.workouts
             loadState = .offline
         }
     }
@@ -123,7 +123,7 @@ private struct WorkoutLibraryPage<Content: View>: View {
 private struct WorkoutPreviewView: View {
     let workout: WorkoutTemplateSummary
 
-    @State private var loadState = WorkoutPreviewLoadState.loading
+    @State private var loadState = AppLoadState.loading
     @State private var session: WorkoutSession?
 
     private let client: WorkoutSessionSupabaseClient
@@ -205,17 +205,13 @@ private struct WorkoutPreviewView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 104)
         }
-        .buttonStyle(.plain)
-        .background(startWorkoutBackground)
-        .foregroundStyle(startWorkoutForegroundColor)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.button, style: .continuous))
-        .shadow(color: startWorkoutShadowColor, radius: 14, y: 8)
+        .appPrimaryActionStyle(.start)
         .disabled(loadState == .loading)
         .opacity(loadState == .loading ? 0.55 : 1)
     }
 
     private var displaySession: WorkoutSession {
-        session ?? WorkoutSession.fallback(for: workout)
+        session ?? WorkoutFallbackCatalog.session(for: workout)
     }
 
     private var planSections: [WorkoutPreviewSection] {
@@ -232,27 +228,11 @@ private struct WorkoutPreviewView: View {
         return sections
     }
 
-    private var startWorkoutBackground: some ShapeStyle {
-        LinearGradient(
-            colors: [Color(red: 0.74, green: 0.93, blue: 0.76), Color(red: 0.55, green: 0.84, blue: 0.58)],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-    }
-
-    private var startWorkoutShadowColor: Color {
-        Color(red: 0.12, green: 0.45, blue: 0.16).opacity(0.24)
-    }
-
-    private var startWorkoutForegroundColor: Color {
-        Color(red: 0.02, green: 0.32, blue: 0.09)
-    }
-
     private func loadPreview() async {
         loadState = .loading
 
-        if workout.id.hasPrefix("fallback-") {
-            session = WorkoutSession.fallback(for: workout)
+        if WorkoutFallbackCatalog.isFallbackWorkoutID(workout.id) {
+            session = WorkoutFallbackCatalog.session(for: workout)
             loadState = .offline
             return
         }
@@ -261,7 +241,7 @@ private struct WorkoutPreviewView: View {
             session = try await client.fetchWorkout()
             loadState = .loaded
         } catch {
-            session = WorkoutSession.fallback(for: workout)
+            session = WorkoutFallbackCatalog.session(for: workout)
             loadState = .offline
         }
     }
@@ -430,18 +410,6 @@ private enum WorkoutTypeOption: CaseIterable, Identifiable {
                 .foregroundStyle(AppTheme.ColorToken.accent)
         }
     }
-}
-
-private enum WorkoutLibraryLoadState {
-    case loading
-    case loaded
-    case offline
-}
-
-private enum WorkoutPreviewLoadState {
-    case loading
-    case loaded
-    case offline
 }
 
 #Preview {

@@ -29,6 +29,11 @@
 		BC0000010000000000000013 /* Supabase.local.env in Resources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000113 /* Supabase.local.env */; };
 		BC0000010000000000000014 /* AppScreenHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000114 /* AppScreenHeader.swift */; };
 		BC0000010000000000000015 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000115 /* AppTheme.swift */; };
+		BC0000010000000000000017 /* AppLoadState.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000117 /* AppLoadState.swift */; };
+		BC0000010000000000000018 /* SupabaseRestClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000118 /* SupabaseRestClient.swift */; };
+		BC0000010000000000000019 /* AppPrimaryActionStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC0000010000000000000119 /* AppPrimaryActionStyle.swift */; };
+		BC000001000000000000001A /* AppTimeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC000001000000000000011A /* AppTimeFormatter.swift */; };
+		BC000001000000000000001B /* WorkoutFallbackCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC000001000000000000011B /* WorkoutFallbackCatalog.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +76,11 @@
 		BC0000010000000000000113 /* Supabase.local.env */ = {isa = PBXFileReference; lastKnownFileType = text; path = Supabase.local.env; sourceTree = "<group>"; };
 		BC0000010000000000000114 /* AppScreenHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppScreenHeader.swift; sourceTree = "<group>"; };
 		BC0000010000000000000115 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		BC0000010000000000000117 /* AppLoadState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLoadState.swift; sourceTree = "<group>"; };
+		BC0000010000000000000118 /* SupabaseRestClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseRestClient.swift; sourceTree = "<group>"; };
+		BC0000010000000000000119 /* AppPrimaryActionStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPrimaryActionStyle.swift; sourceTree = "<group>"; };
+		BC000001000000000000011A /* AppTimeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTimeFormatter.swift; sourceTree = "<group>"; };
+		BC000001000000000000011B /* WorkoutFallbackCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutFallbackCatalog.swift; sourceTree = "<group>"; };
 		98333D4A2FA1CD8F00AB95C8 /* Boxing Companion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Boxing Companion.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		98333D592FA1CD9300AB95C8 /* Boxing CompanionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Boxing CompanionTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		98333D632FA1CD9300AB95C8 /* Boxing CompanionUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Boxing CompanionUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -134,7 +144,9 @@
 		BC0000010000000000000204 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				BC0000010000000000000117 /* AppLoadState.swift */,
 				BC000001000000000000010F /* AppConfig.swift */,
+				BC0000010000000000000118 /* SupabaseRestClient.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -142,6 +154,7 @@
 		BC0000010000000000000205 /* Workouts */ = {
 			isa = PBXGroup;
 			children = (
+				BC000001000000000000011B /* WorkoutFallbackCatalog.swift */,
 				BC0000010000000000000110 /* WorkoutLibrarySupabaseClient.swift */,
 				BC0000010000000000000111 /* WorkoutLibraryView.swift */,
 				BC0000010000000000000112 /* WorkoutTemplateSummary.swift */,
@@ -152,8 +165,10 @@
 		BC0000010000000000000206 /* DesignSystem */ = {
 			isa = PBXGroup;
 			children = (
+				BC0000010000000000000119 /* AppPrimaryActionStyle.swift */,
 				BC0000010000000000000114 /* AppScreenHeader.swift */,
 				BC0000010000000000000115 /* AppTheme.swift */,
+				BC000001000000000000011A /* AppTimeFormatter.swift */,
 			);
 			path = DesignSystem;
 			sourceTree = "<group>";
@@ -363,12 +378,17 @@
 				BC0000010000000000000007 /* ActionManRenderer.swift in Sources */,
 				BC0000010000000000000008 /* ActionManView.swift in Sources */,
 				BC000001000000000000000F /* AppConfig.swift in Sources */,
+				BC0000010000000000000017 /* AppLoadState.swift in Sources */,
+				BC0000010000000000000019 /* AppPrimaryActionStyle.swift in Sources */,
 				BC0000010000000000000014 /* AppScreenHeader.swift in Sources */,
 				BC0000010000000000000015 /* AppTheme.swift in Sources */,
+				BC000001000000000000001A /* AppTimeFormatter.swift in Sources */,
 				BC0000010000000000000001 /* Boxing_CompanionApp.swift in Sources */,
 				BC0000010000000000000002 /* ContentView.swift in Sources */,
 				BC0000010000000000000009 /* RoundTimerEngine.swift in Sources */,
 				BC000001000000000000000A /* RoundTimerView.swift in Sources */,
+				BC0000010000000000000018 /* SupabaseRestClient.swift in Sources */,
+				BC000001000000000000001B /* WorkoutFallbackCatalog.swift in Sources */,
 				BC0000010000000000000010 /* WorkoutLibrarySupabaseClient.swift in Sources */,
 				BC0000010000000000000011 /* WorkoutLibraryView.swift in Sources */,
 				BC0000010000000000000012 /* WorkoutTemplateSummary.swift in Sources */,
