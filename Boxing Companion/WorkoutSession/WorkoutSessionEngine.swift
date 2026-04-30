@@ -121,10 +121,6 @@ struct WorkoutSessionEngine {
         currentBlock.type == .recovery
     }
 
-    var currentAnimationID: String {
-        ActionManAnimationMapper.animationID(for: currentBlock)
-    }
-
     var discipline: WorkoutDiscipline {
         workout.discipline
     }

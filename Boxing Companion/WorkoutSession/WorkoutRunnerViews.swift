@@ -20,11 +20,15 @@ struct BoxingRunnerView: View {
     let engine: WorkoutSessionEngine
     let primaryTextColor: Color
 
+    private var animationID: String {
+        ActionManAnimationMapper.animationID(for: engine.currentSessionBlock)
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             ZStack {
                 ActionManView(
-                    animationID: engine.currentAnimationID,
+                    animationID: animationID,
                     isPlaying: engine.isRunning,
                     lineColor: primaryTextColor
                 )
@@ -59,10 +63,14 @@ struct StrengthRunnerView: View {
         engine.currentSessionBlock
     }
 
+    private var animationID: String {
+        ActionManAnimationMapper.animationID(for: block)
+    }
+
     var body: some View {
         VStack(spacing: 14) {
             ActionManView(
-                animationID: engine.currentAnimationID,
+                animationID: animationID,
                 isPlaying: engine.isRunning,
                 lineColor: primaryTextColor
             )
