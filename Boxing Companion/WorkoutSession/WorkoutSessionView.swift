@@ -23,7 +23,7 @@ struct WorkoutSessionView: View {
                 timerZone
                     .frame(height: topHeight(for: proxy.size.height))
 
-                athleteAndTextZone
+                runnerZone
                     .frame(height: middleHeight(for: proxy.size.height))
 
                 controlsZone
@@ -50,28 +50,11 @@ struct WorkoutSessionView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    private var athleteAndTextZone: some View {
-        VStack(spacing: 0) {
-            ZStack {
-                ActionManView(
-                    animationID: engine.currentAnimationID,
-                    isPlaying: engine.isRunning,
-                    lineColor: primaryTextColor
-                )
-                .frame(width: 190, height: 270)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            ZStack {
-                Color.clear
-
-                // Keep this zone reserved so the timer does not move when workout names wrap.
-                timerText
-                    .offset(y: 18)
-            }
-            .frame(height: 120)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    private var runnerZone: some View {
+        WorkoutRunnerRouterView(
+            engine: engine,
+            primaryTextColor: primaryTextColor
+        )
     }
 
     private var liveText: some View {
@@ -82,17 +65,6 @@ struct WorkoutSessionView: View {
             .lineLimit(3)
             .foregroundStyle(primaryTextColor)
             .frame(maxWidth: .infinity)
-    }
-
-    private var timerText: some View {
-        Text(engine.formattedTimeRemaining)
-            .font(.system(size: 100, weight: .heavy, design: .default))
-            .fontWidth(.condensed)
-            .monospacedDigit()
-            .scaleEffect(x: 0.94, y: 1.2, anchor: .center)
-            .foregroundStyle(primaryTextColor)
-            .lineLimit(1)
-            .minimumScaleFactor(0.7)
     }
 
     private var controlsZone: some View {

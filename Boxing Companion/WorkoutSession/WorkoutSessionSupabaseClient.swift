@@ -49,7 +49,7 @@ struct WorkoutSessionSupabaseClient {
 
     private func queryItems() -> [URLQueryItem] {
         var items = [
-            URLQueryItem(name: "select", value: "id,title,summary,blocks_json"),
+            URLQueryItem(name: "select", value: "id,title,summary,discipline,blocks_json"),
             URLQueryItem(name: "limit", value: "1")
         ]
 
@@ -66,11 +66,13 @@ struct WorkoutSessionSupabaseClient {
 private struct WorkoutSessionRow: Decodable {
     let title: String?
     let summary: String?
+    let discipline: String?
     let blocksJSON: [WorkoutSessionBlockRow]?
 
     enum CodingKeys: String, CodingKey {
         case title
         case summary
+        case discipline
         case blocksJSON = "blocks_json"
     }
 
@@ -80,6 +82,7 @@ private struct WorkoutSessionRow: Decodable {
 
         return WorkoutSession(
             title: displayTitle,
+            discipline: .from(discipline),
             blocks: blocks.isEmpty ? [WorkoutSessionBlock(title: summary ?? displayTitle, type: .unknown, durationSeconds: 0, animationID: "guard_bounce")] : blocks
         )
     }
@@ -90,12 +93,30 @@ private struct WorkoutSessionBlockRow: Decodable {
     let type: String?
     let durationSeconds: Int?
     let animationID: String?
+    let intensity: String?
+    let incline: String?
+    let prescription: String?
+    let notes: String?
+    let cues: [String]?
+    let repeatCount: Int?
+    let workSeconds: Int?
+    let restSeconds: Int?
+    let equipment: [String]?
 
     enum CodingKeys: String, CodingKey {
         case title
         case type
         case durationSeconds = "duration_seconds"
         case animationID = "animation_id"
+        case intensity
+        case incline
+        case prescription
+        case notes
+        case cues
+        case repeatCount = "repeat_count"
+        case workSeconds = "work_seconds"
+        case restSeconds = "rest_seconds"
+        case equipment
     }
 
     var block: WorkoutSessionBlock {
@@ -103,7 +124,16 @@ private struct WorkoutSessionBlockRow: Decodable {
             title: title ?? "",
             type: WorkoutSessionBlockType(rawValue: type ?? "") ?? .unknown,
             durationSeconds: durationSeconds ?? 0,
-            animationID: animationID
+            animationID: animationID,
+            intensity: intensity,
+            incline: incline,
+            prescription: prescription,
+            notes: notes,
+            cues: cues ?? [],
+            repeatCount: repeatCount,
+            workSeconds: workSeconds,
+            restSeconds: restSeconds,
+            equipment: equipment ?? []
         )
     }
 }

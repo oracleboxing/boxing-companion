@@ -49,8 +49,9 @@ Current behavior:
 - `WorkoutLibraryView` fetches active workouts from Supabase `workout_templates` and shows Boxing, Running, and S&C filters.
 - Selecting a workout opens `WorkoutSessionView(workout:)`.
 - `WorkoutSessionView` fetches the selected workout blocks by Supabase ID, then falls back to title lookup for bundled fallback cards.
-- `WorkoutSessionSupabaseClient` reads `blocks_json` from Supabase `workout_templates`.
+- `WorkoutSessionSupabaseClient` reads `discipline` and `blocks_json` from Supabase `workout_templates`.
 - `WorkoutSessionEngine` owns current workout, active block index, start/stop state, manual previous/next block movement, and countdown ticks.
+- `WorkoutRunnerRouterView` chooses a discipline-specific presentation: boxing demo runner, running procedure runner, or S&C demo/prescription runner.
 - If Supabase config/fetching fails, the library falls back to bundled summary cards and the session falls back to a safe placeholder.
 - The old `RoundTimer` module is no longer the main product path. It can stay temporarily as prototype/reference code.
 
@@ -176,6 +177,7 @@ Responsibilities:
 - previous/next block controls
 - loading the selected workout for the current MVP
 - support boxing, running, and S&C block types through the same narrow session model
+- route presentation by discipline without duplicating timer/session logic
 - fallback placeholder when remote loading fails
 
 Non-responsibilities, target state:
@@ -190,7 +192,11 @@ Near-term guidance:
 
 - Keep this module working as the vertical slice.
 - Extract from it gradually: first domain workout models, then the read-only Supabase repository, then the general session engine.
-- The next product-facing addition is the Action Man animation module. The workout session should only pass the active block's animation ID/playback state into Action Man, not own pose drawing logic.
+- Use one shared engine with discipline-specific runner views.
+- Boxing should stay demo-first with Action Man as the hero.
+- Running should be procedure-first: speed, incline, interval/recovery, timer, and up next. It does not need a demonstration hero.
+- S&C should keep Action Man big in the middle, but add prescription details: reps/hold, equipment, tempo/rest cues, and up next.
+- The workout session should only pass the active block's animation ID/playback state into Action Man, not own pose drawing logic.
 
 ### Action Man
 

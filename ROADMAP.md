@@ -34,6 +34,20 @@ Current starter library includes:
 - `Money May W1 S2 HIIT Run` - running
 - `S&C Alpha: Shoulder Core Legs` - strength and conditioning
 
+## Phase 1.6: Discipline-specific runners
+
+Status: in progress.
+
+Goals:
+
+- keep one shared `WorkoutSessionEngine`
+- use a boxing runner with Action Man as the hero
+- use a running runner focused on operating procedures: speed, incline, interval timer, recovery, and up next
+- use an S&C runner with Action Man big in the middle plus reps/hold/equipment/cues
+- ignore hybrid runner design until boxing/running/S&C are solid
+
+Reference SQL: [`SUPABASE_RUNNER_LAYOUTS.sql`](SUPABASE_RUNNER_LAYOUTS.sql)
+
 ## Phase 2: Action Man MVP
 
 Status: in progress.

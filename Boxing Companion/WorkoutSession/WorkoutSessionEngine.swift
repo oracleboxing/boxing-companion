@@ -2,6 +2,7 @@ import Foundation
 
 struct WorkoutSession {
     var title: String
+    var discipline: WorkoutDiscipline
     var blocks: [WorkoutSessionBlock]
 
     var firstBlock: WorkoutSessionBlock {
@@ -10,6 +11,7 @@ struct WorkoutSession {
 
     static let placeholder = WorkoutSession(
         title: "Workout Alpha",
+        discipline: .boxing,
         blocks: [
             WorkoutSessionBlock(title: "Workout Alpha", type: .unknown, durationSeconds: 0, animationID: "guard_bounce")
         ]
@@ -22,6 +24,23 @@ struct WorkoutSessionBlock: Identifiable, Equatable {
     var type: WorkoutSessionBlockType
     var durationSeconds: Int
     var animationID: String?
+    var intensity: String? = nil
+    var incline: String? = nil
+    var prescription: String? = nil
+    var notes: String? = nil
+    var cues: [String] = []
+    var repeatCount: Int? = nil
+    var workSeconds: Int? = nil
+    var restSeconds: Int? = nil
+    var equipment: [String] = []
+
+    var hasRunningProcedure: Bool {
+        intensity != nil || incline != nil || repeatCount != nil || workSeconds != nil || restSeconds != nil
+    }
+
+    var hasStrengthPrescription: Bool {
+        prescription != nil || !equipment.isEmpty || !cues.isEmpty || notes != nil
+    }
 }
 
 enum WorkoutSessionBlockType: String {
@@ -71,6 +90,28 @@ struct WorkoutSessionEngine {
 
     var currentAnimationID: String {
         ActionManAnimationMapper.animationID(for: currentBlock)
+    }
+
+    var discipline: WorkoutDiscipline {
+        workout.discipline
+    }
+
+    var currentBlockNumber: Int {
+        currentBlockIndex + 1
+    }
+
+    var totalBlocks: Int {
+        workout.blocks.count
+    }
+
+    var currentSessionBlock: WorkoutSessionBlock {
+        currentBlock
+    }
+
+    var nextSessionBlock: WorkoutSessionBlock? {
+        let nextIndex = currentBlockIndex + 1
+        guard workout.blocks.indices.contains(nextIndex) else { return nil }
+        return workout.blocks[nextIndex]
     }
 
     private var currentBlock: WorkoutSessionBlock {
